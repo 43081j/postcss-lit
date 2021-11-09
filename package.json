@@ -1,0 +1,34 @@
+{
+  "name": "postcss-custom-syntax",
+  "version": "0.0.1",
+  "description": "A custom PostCSS syntax",
+  "main": "lib/main.js",
+  "files": [
+    "lib/!(test)",
+    "docs"
+  ],
+  "scripts": {
+    "clean": "rimraf ./lib",
+    "lint": "eslint \"src/**/*.ts\"",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "test": "mocha \"lib/test/**/*_test.js\"",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint && npm run test"
+  },
+  "author": "James Garbutt (https://github.com/43081j)",
+  "license": "MIT",
+  "dependencies": {
+    "postcss": "^8.3.11"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.3.1",
+    "@typescript-eslint/parser": "^5.3.1",
+    "eslint": "^8.2.0",
+    "eslint-config-google": "^0.14.0",
+    "prettier": "^2.4.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.4.4"
+  }
+}
