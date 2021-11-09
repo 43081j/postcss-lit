@@ -19,10 +19,8 @@
   },
   "author": "James Garbutt (https://github.com/43081j)",
   "license": "MIT",
-  "dependencies": {
-    "postcss": "^8.3.11"
-  },
   "devDependencies": {
+    "@types/babel__traverse": "^7.14.2",
     "@typescript-eslint/eslint-plugin": "^5.3.1",
     "@typescript-eslint/parser": "^5.3.1",
     "eslint": "^8.2.0",
@@ -30,5 +28,12 @@
     "prettier": "^2.4.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.4"
+  },
+  "peerDependencies": {
+    "postcss": "^8.3.11"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.16.2",
+    "@babel/traverse": "^7.16.0"
   }
 }
