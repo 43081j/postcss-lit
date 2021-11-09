@@ -10,32 +10,51 @@ const parse: Parser<Root | Document> = (
 ): Root | Document => {
   const doc = new Document();
   const ast = babelParse(source.toString(), {
-    sourceType: 'unambiguous'
+    sourceType: 'unambiguous',
+    ranges: true
   });
-  const extractedStyles = new Set<string>();
+  const extractedStyles = new Set<TaggedTemplateExpression>();
 
   traverse(ast, {
     TaggedTemplateExpression: (
       path: NodePath<TaggedTemplateExpression>
     ): void => {
       if (path.node.tag.type === 'Identifier' && path.node.tag.name === 'css') {
-        const value = path.node.quasi.quasis
-          .map((template) => template.value.raw)
-          .join('/* PLACEHOLDER */');
-
-        extractedStyles.add(value);
+        extractedStyles.add(path.node);
       }
     }
   });
 
-  for (const styleText of extractedStyles) {
+  let currentOffset = 0;
+
+  for (const node of extractedStyles) {
+    if (!node.quasi.range) {
+      continue;
+    }
+
+    const startIndex = node.quasi.range[0] + 1;
+    // const endIndex = node.quasi.range[1] - 1;
+
+    const styleText = node.quasi.quasis
+      .map((template) => template.value.raw)
+      .join('/* PLACEHOLDER */');
     const root = postcssParse(styleText, {
       ...opts,
       map: false
     });
 
+    root.raws.codeBefore = source.toString().slice(currentOffset, startIndex);
     root.parent = doc;
     doc.nodes.push(root);
+
+    currentOffset = startIndex + styleText.length;
+  }
+
+  if (doc.nodes.length > 0) {
+    const last = doc.nodes[doc.nodes.length - 1];
+    if (last) {
+      last.raws.codeAfter = source.toString().slice(currentOffset);
+    }
   }
 
   doc.source = {
@@ -55,13 +74,11 @@ const syntax: Syntax = {
 };
 
 console.log(
-  (
-    parse(`
+  parse(`
   css\`
     .foo { color: blue; }
   \`;
-`).nodes[0] as Root
-  ).nodes[0]
+`).nodes[0]
 );
 
 export {syntax};
