@@ -1,4 +1,4 @@
-# postcss-template-literal-syntax
+# postcss-lit-syntax
 
 This is a work-in-progress of a PostCSS custom syntax which parses the CSS
 contained within tagged template literals.
