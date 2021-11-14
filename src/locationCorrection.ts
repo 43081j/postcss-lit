@@ -2,22 +2,29 @@ import {Root, Position, ChildNode} from 'postcss';
 import {TaggedTemplateExpression} from '@babel/types';
 
 const correctLocation = (
-  expr: TaggedTemplateExpression,
+  node: TaggedTemplateExpression,
   loc: Position
 ): Position => {
-  if (!expr.quasi.loc || !expr.quasi.range) {
+  if (!node.quasi.loc || !node.quasi.range) {
     return loc;
   }
 
-  const exprLoc = expr.quasi.loc;
-  const exprOffset = expr.quasi.range[0];
+  const nodeLoc = node.quasi.loc;
+  const nodeOffset = node.quasi.range[0];
+  const newOffset = loc.offset + nodeOffset;
+  let newColumn = loc.line === 1 ? nodeLoc.start.column : loc.column;
+  let lineOffset = nodeLoc.start.line - 1;
 
-  if (loc.line === 1) {
-    loc.column += exprLoc.start.column;
+  for (const expr of node.quasi.expressions) {
+    if (expr.loc && expr.range && expr.range[0] < newOffset) {
+      lineOffset += expr.loc.end.line - expr.loc.start.line;
+      newColumn = expr.loc.end.column + 2;
+    }
   }
 
-  loc.line += exprLoc.start.line;
-  loc.offset += exprOffset;
+  loc.column = newColumn;
+  loc.line += lineOffset;
+  loc.offset = newOffset;
 
   return loc;
 };
@@ -37,10 +44,6 @@ export function locationCorrectionWalker(
       node.source.start = correctLocation(expr, node.source.start);
     }
     if (node.source?.end) {
-      // TODO (4308j1): this location will still be off if we have
-      // expressions, as we have NUM_EXPRESSIONS * PLACEHOLDER_LENGTH of a gap
-      // inside the template. Some wizardry needs doing to take that into
-      // account as expressions can be cross-line too...
       node.source.end = correctLocation(expr, node.source.end);
     }
   };

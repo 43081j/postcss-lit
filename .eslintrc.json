@@ -19,6 +19,7 @@
     "eqeqeq": "error",
     "no-unused-vars": "off",
     "spaced-comment": "off",
+    "no-useless-escape": "off",
     "comma-dangle": ["error", "never"],
     "@typescript-eslint/explicit-function-return-type": [
       "error",

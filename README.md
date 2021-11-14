@@ -1,7 +1,7 @@
-# postcss-lit-syntax
+# postcss-lit
 
-This is a work-in-progress of a PostCSS custom syntax which parses the CSS
-contained within tagged template literals.
+This is a work-in-progress of a PostCSS plugin which provides a custom syntax
+to parse the CSS contained within tagged template literals.
 
 For example:
 
