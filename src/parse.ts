@@ -19,6 +19,7 @@ export const parse: Parser<Root | Document> = (
   const doc = new Document();
   const ast = babelParse(source.toString(), {
     sourceType: 'unambiguous',
+    plugins: ['typescript'],
     ranges: true
   });
   const extractedStyles = new Set<TaggedTemplateExpression>();
@@ -41,7 +42,6 @@ export const parse: Parser<Root | Document> = (
     }
 
     const startIndex = node.quasi.range[0] + 1;
-    // const endIndex = node.quasi.range[1] - 1;
 
     const styleText = node.quasi.quasis
       .map((template) => template.value.raw)
