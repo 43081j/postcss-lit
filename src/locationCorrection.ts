@@ -1,23 +1,67 @@
 import {Root, Position, ChildNode} from 'postcss';
 import {TaggedTemplateExpression} from '@babel/types';
+import {PLACEHOLDER} from './constants.js';
 
 const correctLocation = (
-  expr: TaggedTemplateExpression,
+  node: TaggedTemplateExpression,
   loc: Position
 ): Position => {
-  if (!expr.quasi.loc || !expr.quasi.range) {
+  if (!node.quasi.loc || !node.quasi.range) {
     return loc;
   }
 
-  const exprLoc = expr.quasi.loc;
-  const exprOffset = expr.quasi.range[0];
+  const nodeLoc = node.quasi.loc;
+  const nodeOffset = node.quasi.range[0];
+  let lineOffset = nodeLoc.start.line - 1;
+  let newOffset = loc.offset + nodeOffset + 1;
+  let currentLine = 1;
+  let columnOffset = nodeLoc.start.column + 1;
 
-  if (loc.line === 1) {
-    loc.column += exprLoc.start.column;
+  for (let i = 0; i < node.quasi.expressions.length; i++) {
+    const expr = node.quasi.expressions[i];
+    const previousQuasi = node.quasi.quasis[i];
+    const nextQuasi = node.quasi.quasis[i + 1];
+
+    if (
+      expr &&
+      expr.loc &&
+      expr.range &&
+      nextQuasi &&
+      previousQuasi &&
+      previousQuasi.loc &&
+      nextQuasi.loc &&
+      previousQuasi.range &&
+      nextQuasi.range &&
+      previousQuasi.range[1] < newOffset
+    ) {
+      const exprSize =
+        nextQuasi.range[0] - previousQuasi.range[1] - PLACEHOLDER.length;
+      const exprStartLine = previousQuasi.loc.end.line;
+      const exprEndLine = nextQuasi.loc.start.line;
+      newOffset += exprSize;
+      lineOffset += exprEndLine - exprStartLine;
+
+      if (currentLine !== exprEndLine) {
+        currentLine = exprEndLine;
+        if (exprStartLine === exprEndLine) {
+          columnOffset = exprSize;
+        } else {
+          columnOffset =
+            nextQuasi.loc.start.column -
+            previousQuasi.loc.end.column -
+            PLACEHOLDER.length;
+        }
+      } else {
+        columnOffset += exprSize;
+      }
+    }
   }
 
-  loc.line += exprLoc.start.line;
-  loc.offset += exprOffset;
+  loc.line += lineOffset;
+  if (loc.line === currentLine) {
+    loc.column += columnOffset;
+  }
+  loc.offset = newOffset;
 
   return loc;
 };
@@ -37,10 +81,6 @@ export function locationCorrectionWalker(
       node.source.start = correctLocation(expr, node.source.start);
     }
     if (node.source?.end) {
-      // TODO (4308j1): this location will still be off if we have
-      // expressions, as we have NUM_EXPRESSIONS * PLACEHOLDER_LENGTH of a gap
-      // inside the template. Some wizardry needs doing to take that into
-      // account as expressions can be cross-line too...
       node.source.end = correctLocation(expr, node.source.end);
     }
   };
