@@ -59,4 +59,33 @@ describe('parse', () => {
     assert.equal(rule.type, 'rule');
     assert.equal(colour.type, 'decl');
   });
+
+  it('should parse multiple stylesheets', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo { color: hotpink; }
+      \`;
+
+      css\`.bar: { background: lime; }\`;
+    `);
+    assert.equal(ast.nodes.length, 2);
+    const root1 = ast.nodes[0] as Root;
+    const root2 = ast.nodes[1] as Root;
+
+    assert.equal(root1.type, 'root');
+    assert.equal(root1.raws.codeBefore, '\n      css`');
+    assert.equal(root1.raws.codeAfter, undefined);
+    assert.equal(root1.parent, ast);
+    assert.equal(root2.type, 'root');
+    assert.equal(root2.raws.codeBefore, '`;\n\n      css`');
+    assert.equal(root2.raws.codeAfter, '`;\n    ');
+    assert.equal(root2.parent, ast);
+
+    assert.deepEqual(ast.source!.start, {
+      line: 1,
+      column: 1,
+      offset: 0
+    });
+    assert.equal(ast.source!.input.css, source);
+  });
 });
