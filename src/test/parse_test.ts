@@ -1,4 +1,4 @@
-import {Root, Rule, Declaration} from 'postcss';
+import {Root, Rule, Declaration, Comment} from 'postcss';
 import {assert} from 'chai';
 import {createTestAst} from './util.js';
 
@@ -86,6 +86,24 @@ describe('parse', () => {
       column: 1,
       offset: 0
     });
+    assert.equal(ast.source!.input.css, source);
+  });
+
+  it('should parse CSS containing an expression', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo { $\{expr}color: hotpink; }
+      \`;
+    `);
+    const root = ast.nodes[0] as Root;
+    const rule = root.nodes[0] as Rule;
+    const placeholder = rule.nodes[0] as Comment;
+    const colour = rule.nodes[1] as Declaration;
+    assert.equal(ast.type, 'document');
+    assert.equal(root.type, 'root');
+    assert.equal(rule.type, 'rule');
+    assert.equal(placeholder.type, 'comment');
+    assert.equal(colour.type, 'decl');
     assert.equal(ast.source!.input.css, source);
   });
 });
