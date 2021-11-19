@@ -1,6 +1,6 @@
 import {Root, Position, ChildNode} from 'postcss';
 import {TaggedTemplateExpression} from '@babel/types';
-import {PLACEHOLDER} from './constants.js';
+import {createPlaceholder} from './util.js';
 
 const correctLocation = (
   node: TaggedTemplateExpression,
@@ -34,8 +34,9 @@ const correctLocation = (
       nextQuasi.range &&
       previousQuasi.range[1] < newOffset
     ) {
+      const placeholderSize = createPlaceholder(i).length;
       const exprSize =
-        nextQuasi.range[0] - previousQuasi.range[1] - PLACEHOLDER.length;
+        nextQuasi.range[0] - previousQuasi.range[1] - placeholderSize;
       const exprStartLine = previousQuasi.loc.end.line;
       const exprEndLine = nextQuasi.loc.start.line;
       newOffset += exprSize;
@@ -49,7 +50,7 @@ const correctLocation = (
           columnOffset =
             nextQuasi.loc.start.column -
             previousQuasi.loc.end.column -
-            PLACEHOLDER.length;
+            placeholderSize;
         }
       } else {
         columnOffset += exprSize;
