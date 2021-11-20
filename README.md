@@ -1,7 +1,7 @@
 # postcss-lit
 
-This is a work-in-progress of a PostCSS plugin which provides a custom syntax
-to parse the CSS contained within tagged template literals.
+A PostCSS and stylelint custom syntax for parsing CSS inside
+[lit](https://lit.dev) templates.
 
 For example:
 
@@ -13,5 +13,35 @@ class MyElement extends LitElement {
 }
 ```
 
-This custom syntax would extract the inner CSS and pass-through to PostCSS'
-internal parser.
+## Install
+
+```sh
+npm i -D postcss-lit
+```
+
+## Usage with PostCSS
+
+In your `postcss.config.js`:
+
+```ts
+module.exports = {
+  syntax: 'postcss-lit',
+  plugins: [...]
+};
+```
+
+## Usage with stylelint
+
+In your `.stylelintrc.json` (or other stylelint config file):
+
+```ts
+{
+  "customSyntax": "postcss-lit"
+}
+```
+
+Or with the CLI:
+
+```sh
+stylelint --custom-syntax postcss-lit
+```
