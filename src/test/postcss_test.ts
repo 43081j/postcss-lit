@@ -1,8 +1,15 @@
-import {Rule, Declaration, Document, default as postcss} from 'postcss';
+import {
+  Rule,
+  Declaration,
+  Document,
+  Root,
+  default as postcss,
+  TransformCallback
+} from 'postcss';
 import {assert} from 'chai';
 import {syntax} from '../main.js';
 
-describe('parse', () => {
+describe('postcss', () => {
   it('should parse basic CSS', async () => {
     const source = `
       css\`
@@ -27,5 +34,33 @@ describe('parse', () => {
       offset: 0
     });
     assert.equal(ast.source!.input.css, source);
+  });
+
+  it('should work with other plugins', async () => {
+    const source = `
+      css\`
+        .foo { color: hotpink; }
+      \`;
+    `;
+    const transform: TransformCallback = (root: Root): void => {
+      root.walk((node) => {
+        if (node.type === 'decl' && node.value === 'hotpink') {
+          node.value = 'lime';
+        }
+      });
+    };
+    const result = await postcss([transform]).process(source, {
+      syntax,
+      from: 'foo.js'
+    });
+    const output = result.toString();
+    assert.equal(
+      output,
+      `
+      css\`
+        .foo { color: lime; }
+      \`;
+    `
+    );
   });
 });

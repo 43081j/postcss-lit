@@ -118,4 +118,37 @@ describe('stringify', () => {
     `
     );
   });
+
+  it('should ignore non-placeholder comments', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo { /*BOOP*/color: hotpink; }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should handle deleted individual expression state', () => {
+    const {ast} = createTestAst(`
+      css\`
+        .foo { $\{expr}color: hotpink; }
+      \`;
+    `);
+
+    const root = ast.nodes[0]!;
+    root.raws['templateExpressions'] = [];
+    const output = ast.toString(syntax);
+
+    assert.equal(
+      output,
+      `
+      css\`
+        .foo { /*POSTCSS_LIT:0*/color: hotpink; }
+      \`;
+    `
+    );
+  });
 });

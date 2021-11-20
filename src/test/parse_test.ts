@@ -106,4 +106,32 @@ describe('parse', () => {
     assert.equal(colour.type, 'decl');
     assert.equal(ast.source!.input.css, source);
   });
+
+  it('should parse JS without any CSS', () => {
+    const {source, ast} = createTestAst(`
+      const foo = 'bar';
+    `);
+    assert.equal(ast.type, 'document');
+    assert.equal(ast.nodes.length, 0);
+    assert.deepEqual(ast.source!.start, {
+      line: 1,
+      column: 1,
+      offset: 0
+    });
+    assert.equal(ast.source!.input.css, source);
+  });
+
+  it('should ignore non-css templates', () => {
+    const {source, ast} = createTestAst(`
+      html\`<div></div>\`;
+    `);
+    assert.equal(ast.type, 'document');
+    assert.equal(ast.nodes.length, 0);
+    assert.deepEqual(ast.source!.start, {
+      line: 1,
+      column: 1,
+      offset: 0
+    });
+    assert.equal(ast.source!.input.css, source);
+  });
 });
