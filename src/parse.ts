@@ -69,7 +69,7 @@ export const parse: Parser<Root | Document> = (
     const root = postcssParse(styleText, {
       ...opts,
       map: false
-    });
+    }) as Root;
 
     root.raws['templateExpressions'] = expressionStrings;
     root.raws.codeBefore = sourceAsString.slice(currentOffset, startIndex);

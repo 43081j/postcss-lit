@@ -1,4 +1,4 @@
-import {Root, Position, ChildNode} from 'postcss';
+import {Root, Position, Document, ChildNode} from 'postcss';
 import {TaggedTemplateExpression} from '@babel/types';
 import {createPlaceholder} from './util.js';
 
@@ -76,8 +76,8 @@ const correctLocation = (
  */
 export function locationCorrectionWalker(
   expr: TaggedTemplateExpression
-): (node: ChildNode | Root) => void {
-  return (node: ChildNode | Root): void => {
+): (node: Document | Root | ChildNode) => void {
+  return (node: Document | Root | ChildNode): void => {
     if (node.source?.start) {
       node.source.start = correctLocation(expr, node.source.start);
     }
