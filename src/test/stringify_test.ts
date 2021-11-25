@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {createTestAst} from './util.js';
-import {syntax} from '../main.js';
+import syntax = require('../main.js');
 
 describe('stringify', () => {
   it('should stringify basic CSS', () => {
