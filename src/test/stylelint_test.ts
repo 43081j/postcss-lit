@@ -1,6 +1,6 @@
 import stylelint = require('stylelint');
 import {assert} from 'chai';
-import {syntax} from '../main.js';
+import syntax = require('../main.js');
 
 describe('stylelint', () => {
   it('should be lintable by stylelint', async () => {

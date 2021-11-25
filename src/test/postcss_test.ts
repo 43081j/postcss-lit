@@ -7,7 +7,7 @@ import {
   TransformCallback
 } from 'postcss';
 import {assert} from 'chai';
-import {syntax} from '../main.js';
+import syntax = require('../main.js');
 
 describe('postcss', () => {
   it('should parse basic CSS', async () => {
