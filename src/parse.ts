@@ -20,7 +20,7 @@ export const parse: Parser<Root | Document> = (
   const sourceAsString = source.toString();
   const ast = babelParse(sourceAsString, {
     sourceType: 'unambiguous',
-    plugins: ['typescript'],
+    plugins: ['typescript', ['decorators', {decoratorsBeforeExport: true}]],
     ranges: true
   });
   const extractedStyles = new Set<TaggedTemplateExpression>();
