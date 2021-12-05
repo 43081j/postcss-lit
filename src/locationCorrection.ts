@@ -81,6 +81,12 @@ const correctLocation = (
   return loc;
 };
 
+/**
+ * Corrects the before/after raw strings of a given node
+ * @param {Document|Root|ChildNode} node Node to correct
+ * @param {Map} baseIndentations Map of indentations for each line
+ * @return {void}
+ */
 function correctBeforeAfter(
   node: Document | Root | ChildNode,
   baseIndentations: Map<number, number>
