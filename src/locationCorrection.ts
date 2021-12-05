@@ -81,6 +81,42 @@ const correctLocation = (
   return loc;
 };
 
+function correctBeforeAfter(
+  node: Document | Root | ChildNode,
+  baseIndentations: Map<number, number>
+): void {
+  const indentPattern = /^\n[ \t]*$/;
+
+  if (node.raws.before && node.source?.start) {
+    if (indentPattern.test(node.raws.before)) {
+      const baseIndentation = baseIndentations.get(node.source.start.line);
+      if (baseIndentation !== undefined) {
+        node.raws.before =
+          '\n' + ' '.repeat(baseIndentation) + node.raws.before.slice(1);
+      }
+    }
+  }
+
+  if (node.raws.after) {
+    if (indentPattern.test(node.raws.after)) {
+      let baseIndentation: number | undefined = undefined;
+      if (node.type === 'root') {
+        const line = node.nodes[0]?.source?.end?.line;
+        if (line !== undefined) {
+          baseIndentation = baseIndentations.get(line + 1);
+        }
+      } else {
+        baseIndentation =
+          node.source?.end && baseIndentations.get(node.source.end.line);
+      }
+      if (baseIndentation !== undefined) {
+        node.raws.after =
+          '\n' + ' '.repeat(baseIndentation) + node.raws.after.slice(1);
+      }
+    }
+  }
+}
+
 /**
  * Creates an AST walker/visitor for correcting PostCSS AST locations to
  * those in the original JavaScript document.
@@ -94,6 +130,11 @@ export function locationCorrectionWalker(
   return (node: Document | Root | ChildNode): void => {
     const root = node.root();
     const baseIndentations = root.raws['baseIndentations'];
+
+    if (baseIndentations) {
+      correctBeforeAfter(node, baseIndentations);
+    }
+
     if (node.source?.start) {
       node.source.start = correctLocation(
         expr,
