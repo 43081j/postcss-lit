@@ -5,19 +5,19 @@ import {createPlaceholder} from './util.js';
 const correctLocation = (
   node: TaggedTemplateExpression,
   loc: Position,
-  baseIndentation: number
+  baseIndentations: Map<number, number>
 ): Position => {
   if (!node.quasi.loc || !node.quasi.range) {
     return loc;
   }
 
+  const baseIndentation = baseIndentations?.get(loc.line) ?? 0;
   const nodeLoc = node.quasi.loc;
   const nodeOffset = node.quasi.range[0];
   let lineOffset = nodeLoc.start.line - 1;
   let newOffset = loc.offset + nodeOffset + 1;
   let currentLine = 1;
   let columnOffset = nodeLoc.start.column + 1;
-  let expressionLines = 0;
 
   for (let i = 0; i < node.quasi.expressions.length; i++) {
     const expr = node.quasi.expressions[i];
@@ -43,7 +43,6 @@ const correctLocation = (
       const exprEndLine = nextQuasi.loc.start.line;
       newOffset += exprSize;
       lineOffset += exprEndLine - exprStartLine;
-      expressionLines += nextQuasi.loc.start.line - previousQuasi.loc.end.line;
 
       if (currentLine !== exprEndLine) {
         currentLine = exprEndLine;
@@ -61,6 +60,14 @@ const correctLocation = (
     }
   }
 
+  let indentationOffset = 0;
+
+  if (baseIndentations) {
+    for (let i = 1; i <= loc.line; i++) {
+      indentationOffset += baseIndentations.get(i) ?? 0;
+    }
+  }
+
   loc.line += lineOffset;
   if (loc.line === currentLine) {
     loc.column += columnOffset;
@@ -68,9 +75,8 @@ const correctLocation = (
   if (loc.line !== 1) {
     loc.column += baseIndentation;
   }
-  loc.offset =
-    newOffset +
-    (loc.line - nodeLoc.start.line - expressionLines) * baseIndentation;
+
+  loc.offset = newOffset + indentationOffset;
 
   return loc;
 };
@@ -87,16 +93,20 @@ export function locationCorrectionWalker(
 ): (node: Document | Root | ChildNode) => void {
   return (node: Document | Root | ChildNode): void => {
     const root = node.root();
-    const baseIndentation = root.raws['baseIndentation'] ?? 0;
+    const baseIndentations = root.raws['baseIndentations'];
     if (node.source?.start) {
       node.source.start = correctLocation(
         expr,
         node.source.start,
-        baseIndentation
+        baseIndentations
       );
     }
     if (node.source?.end) {
-      node.source.end = correctLocation(expr, node.source.end, baseIndentation);
+      node.source.end = correctLocation(
+        expr,
+        node.source.end,
+        baseIndentations
+      );
     }
   };
 }

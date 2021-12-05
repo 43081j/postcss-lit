@@ -67,17 +67,31 @@ export const parse: Parser<Root | Document> = (
     }
 
     const baseIndentation = (node.quasi.loc?.end.column ?? 1) - 1;
-    const deindentedStyleText = styleText.replace(
-      new RegExp(`^[ \\t]{${baseIndentation}}`, 'gm'),
-      ''
-    );
+    const sourceLines = styleText.split('\n');
+    const baseIndentations = new Map<number, number>();
+    const indentationPattern = new RegExp(`^[ \\t]{${baseIndentation}}`);
+    const deindentedLines: string[] = [];
+
+    for (let i = 0; i < sourceLines.length; i++) {
+      const sourceLine = sourceLines[i];
+      if (sourceLine !== undefined) {
+        if (indentationPattern.test(sourceLine)) {
+          deindentedLines.push(sourceLine.replace(indentationPattern, ''));
+          baseIndentations.set(i + 1, baseIndentation);
+        } else {
+          deindentedLines.push(sourceLine);
+        }
+      }
+    }
+
+    const deindentedStyleText = deindentedLines.join('\n');
     const root = postcssParse(deindentedStyleText, {
       ...opts,
       map: false
     }) as Root;
 
     root.raws['templateExpressions'] = expressionStrings;
-    root.raws['baseIndentation'] = baseIndentation;
+    root.raws['baseIndentations'] = baseIndentations;
     root.raws.codeBefore = sourceAsString.slice(currentOffset, startIndex);
     root.parent = doc;
     const walker = locationCorrectionWalker(node);
