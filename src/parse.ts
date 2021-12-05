@@ -66,12 +66,18 @@ export const parse: Parser<Root | Document> = (
       }
     }
 
-    const root = postcssParse(styleText, {
+    const baseIndentation = (node.quasi.loc?.end.column ?? 1) - 1;
+    const deindentedStyleText = styleText.replace(
+      new RegExp(`^[ \\t]{${baseIndentation}}`, 'gm'),
+      ''
+    );
+    const root = postcssParse(deindentedStyleText, {
       ...opts,
       map: false
     }) as Root;
 
     root.raws['templateExpressions'] = expressionStrings;
+    root.raws['baseIndentation'] = baseIndentation;
     root.raws.codeBefore = sourceAsString.slice(currentOffset, startIndex);
     root.parent = doc;
     const walker = locationCorrectionWalker(node);

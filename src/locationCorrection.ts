@@ -4,7 +4,8 @@ import {createPlaceholder} from './util.js';
 
 const correctLocation = (
   node: TaggedTemplateExpression,
-  loc: Position
+  loc: Position,
+  baseIndentation: number
 ): Position => {
   if (!node.quasi.loc || !node.quasi.range) {
     return loc;
@@ -16,6 +17,7 @@ const correctLocation = (
   let newOffset = loc.offset + nodeOffset + 1;
   let currentLine = 1;
   let columnOffset = nodeLoc.start.column + 1;
+  let expressionLines = 0;
 
   for (let i = 0; i < node.quasi.expressions.length; i++) {
     const expr = node.quasi.expressions[i];
@@ -41,6 +43,7 @@ const correctLocation = (
       const exprEndLine = nextQuasi.loc.start.line;
       newOffset += exprSize;
       lineOffset += exprEndLine - exprStartLine;
+      expressionLines += nextQuasi.loc.start.line - previousQuasi.loc.end.line;
 
       if (currentLine !== exprEndLine) {
         currentLine = exprEndLine;
@@ -62,7 +65,12 @@ const correctLocation = (
   if (loc.line === currentLine) {
     loc.column += columnOffset;
   }
-  loc.offset = newOffset;
+  if (loc.line !== 1) {
+    loc.column += baseIndentation;
+  }
+  loc.offset =
+    newOffset +
+    (loc.line - nodeLoc.start.line - expressionLines) * baseIndentation;
 
   return loc;
 };
@@ -78,11 +86,17 @@ export function locationCorrectionWalker(
   expr: TaggedTemplateExpression
 ): (node: Document | Root | ChildNode) => void {
   return (node: Document | Root | ChildNode): void => {
+    const root = node.root();
+    const baseIndentation = root.raws['baseIndentation'] ?? 0;
     if (node.source?.start) {
-      node.source.start = correctLocation(expr, node.source.start);
+      node.source.start = correctLocation(
+        expr,
+        node.source.start,
+        baseIndentation
+      );
     }
     if (node.source?.end) {
-      node.source.end = correctLocation(expr, node.source.end);
+      node.source.end = correctLocation(expr, node.source.end, baseIndentation);
     }
   };
 }

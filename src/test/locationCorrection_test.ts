@@ -157,4 +157,45 @@ describe('locationCorrection', () => {
     );
     assert.equal(getSourceForNodeByRange(source, colour), 'color: hotpink;');
   });
+
+  it('should correct indentation', () => {
+    const {ast} = createTestAst(`
+      css\`
+        .foo { color: hotpink; }
+      \`;
+    `);
+    const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
+    assert.deepEqual(rule.source!.start, {
+      offset: 0,
+      column: 1,
+      line: 1
+    });
+    assert.deepEqual(rule.source!.end, {
+      offset: 0,
+      column: 1,
+      line: 1
+    });
+  });
+
+  it('should account for mixed indentation', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+  .foo { $\{expr\}color: hotpink; }
+      \`;
+    `);
+    const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
+    const colour = rule.nodes[1] as Declaration;
+    assert.equal(colour.type, 'decl');
+    assert.equal(rule.type, 'rule');
+    assert.equal(
+      getSourceForNodeByLoc(source, rule),
+      '.foo { ${expr}color: hotpink; }'
+    );
+    assert.equal(getSourceForNodeByLoc(source, colour), 'color: hotpink;');
+    assert.equal(
+      getSourceForNodeByRange(source, rule),
+      '.foo { ${expr}color: hotpink; }'
+    );
+    assert.equal(getSourceForNodeByRange(source, colour), 'color: hotpink;');
+  });
 });
