@@ -82,43 +82,38 @@ const correctLocation = (
 };
 
 /**
- * Corrects the before/after raw strings of a given node
- * @param {Document|Root|ChildNode} node Node to correct
- * @param {Map} baseIndentations Map of indentations for each line
+ * Computes the before/after strings from the original source for
+ * restoration later when stringifying.
+ * @param {Document|Root|ChildNode} node Node to compute strings for
+ * @param {Map} baseIndentations Map of base indentations by line
  * @return {void}
  */
-function correctBeforeAfter(
+function computeBeforeAfter(
   node: Document | Root | ChildNode,
   baseIndentations: Map<number, number>
 ): void {
-  const indentPattern = /^\n[ \t]*$/;
-
-  if (node.raws.before && node.source?.start) {
-    if (indentPattern.test(node.raws.before)) {
-      const baseIndentation = baseIndentations.get(node.source.start.line);
-      if (baseIndentation !== undefined) {
-        node.raws.before =
-          '\n' + ' '.repeat(baseIndentation) + node.raws.before.slice(1);
-      }
+  if (
+    node.raws['before'] &&
+    node.raws['before'].includes('\n') &&
+    node.source?.start
+  ) {
+    const raw = node.raws['before'];
+    const line = node.source.start.line;
+    const baseIndentation = line && baseIndentations.get(line);
+    if (baseIndentation !== undefined) {
+      node.raws['litBefore'] = raw + ' '.repeat(baseIndentation);
     }
   }
 
-  if (node.raws.after) {
-    if (indentPattern.test(node.raws.after)) {
-      let baseIndentation: number | undefined = undefined;
-      if (node.type === 'root') {
-        const line = node.nodes[0]?.source?.end?.line;
-        if (line !== undefined) {
-          baseIndentation = baseIndentations.get(line + 1);
-        }
-      } else {
-        baseIndentation =
-          node.source?.end && baseIndentations.get(node.source.end.line);
-      }
-      if (baseIndentation !== undefined) {
-        node.raws.after =
-          '\n' + ' '.repeat(baseIndentation) + node.raws.after.slice(1);
-      }
+  if (
+    node.type === 'root' &&
+    node.raws.after &&
+    node.raws.after.includes('\n')
+  ) {
+    const baseIndentation = baseIndentations.get(-1);
+
+    if (baseIndentation !== undefined) {
+      node.raws['litAfter'] = node.raws.after + ' '.repeat(baseIndentation);
     }
   }
 }
@@ -135,10 +130,10 @@ export function locationCorrectionWalker(
 ): (node: Document | Root | ChildNode) => void {
   return (node: Document | Root | ChildNode): void => {
     const root = node.root();
-    const baseIndentations = root.raws['baseIndentations'];
+    const baseIndentations = root.raws['litBaseIndentations'];
 
     if (baseIndentations) {
-      correctBeforeAfter(node, baseIndentations);
+      computeBeforeAfter(node, baseIndentations);
     }
 
     if (node.source?.start) {

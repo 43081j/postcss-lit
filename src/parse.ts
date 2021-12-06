@@ -78,6 +78,11 @@ export const parse: Parser<Root | Document> = (
         if (indentationPattern.test(sourceLine)) {
           deindentedLines.push(sourceLine.replace(indentationPattern, ''));
           baseIndentations.set(i + 1, baseIndentation);
+          // Roots don't have an end line, so we can't look this up so easily
+          // later on. Having a special '-1' key helps here.
+          if (i === sourceLines.length - 1) {
+            baseIndentations.set(-1, baseIndentation);
+          }
         } else {
           deindentedLines.push(sourceLine);
         }
@@ -90,10 +95,13 @@ export const parse: Parser<Root | Document> = (
       map: false
     }) as Root;
 
-    root.raws['templateExpressions'] = expressionStrings;
-    root.raws['baseIndentations'] = baseIndentations;
+    root.raws['litTemplateExpressions'] = expressionStrings;
+    root.raws['litBaseIndentations'] = baseIndentations;
     root.raws.codeBefore = sourceAsString.slice(currentOffset, startIndex);
     root.parent = doc;
+    // TODO (43081j): stylelint relies on this existing, really unsure why.
+    // it could just access root.parent to get the document...
+    (root as Root & {document: Document}).document = doc;
     const walker = locationCorrectionWalker(node);
     walker(root);
     root.walk(walker);

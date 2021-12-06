@@ -20,7 +20,7 @@ class LitStringifier extends Stringifier {
       const [, expressionIndexString] = node.text.split(':');
       const expressionIndex = Number(expressionIndexString);
       const root = node.root();
-      const expressionStrings = root.raws['templateExpressions'];
+      const expressionStrings = root.raws['litTemplateExpressions'];
 
       if (expressionStrings && !Number.isNaN(expressionIndex)) {
         const expression = expressionStrings[expressionIndex];
@@ -38,8 +38,29 @@ class LitStringifier extends Stringifier {
   /** @inheritdoc */
   public override root(node: Root): void {
     this.builder(node.raws.codeBefore ?? '', node, 'start');
-    super.root(node);
+
+    this.body(node);
+
+    // Here we want to recover any previously removed JS indentation
+    // if possible. Otherwise, we use the `after` string as-is.
+    const after = node.raws['litAfter'] ?? node.raws.after;
+    if (after) {
+      this.builder(after);
+    }
+
     this.builder(node.raws.codeAfter ?? '', node, 'end');
+  }
+
+  /** @inheritdoc */
+  public override raw(
+    node: AnyNode,
+    own: string,
+    detect: string | undefined
+  ): string {
+    if (own === 'before' && node.raws['before'] && node.raws['litBefore']) {
+      return node.raws['litBefore'];
+    }
+    return super.raw(node, own, detect);
   }
 }
 
