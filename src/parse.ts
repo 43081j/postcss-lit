@@ -70,7 +70,15 @@ export const parse: Parser<Root | Document> = (
     const sourceLines = styleText.split('\n');
     const baseIndentations = new Map<number, number>();
     const indentationPattern = new RegExp(`^[ \\t]{${baseIndentation}}`);
+    const emptyLinePattern = /^[ \\t\r]*$/;
     const deindentedLines: string[] = [];
+    const prefixOffsets = {lines: 0, offset: 0};
+
+    if (sourceLines[0] !== undefined && emptyLinePattern.test(sourceLines[0])) {
+      prefixOffsets.lines = 1;
+      prefixOffsets.offset = sourceLines[0].length + 1;
+      sourceLines.shift();
+    }
 
     for (let i = 0; i < sourceLines.length; i++) {
       const sourceLine = sourceLines[i];
@@ -95,9 +103,19 @@ export const parse: Parser<Root | Document> = (
       map: false
     }) as Root;
 
+    root.raws['litPrefixOffsets'] = prefixOffsets;
     root.raws['litTemplateExpressions'] = expressionStrings;
     root.raws['litBaseIndentations'] = baseIndentations;
-    root.raws.codeBefore = sourceAsString.slice(currentOffset, startIndex);
+    // TODO (43081j): remove this if stylelint/stylelint#5767 ever gets fixed,
+    // or they drop the indentation rule. Their indentation rule depends on
+    // `beforeStart` existing as they unsafely try to call `endsWith` on it.
+    if (!root.raws['beforeStart']) {
+      root.raws['beforeStart'] = '';
+    }
+    root.raws.codeBefore = sourceAsString.slice(
+      currentOffset,
+      startIndex + prefixOffsets.offset
+    );
     root.parent = doc;
     // TODO (43081j): stylelint relies on this existing, really unsure why.
     // it could just access root.parent to get the document...

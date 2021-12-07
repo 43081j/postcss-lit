@@ -5,7 +5,8 @@ import {createPlaceholder} from './util.js';
 const correctLocation = (
   node: TaggedTemplateExpression,
   loc: Position,
-  baseIndentations: Map<number, number>
+  baseIndentations: Map<number, number>,
+  prefixOffsets?: {lines: number; offset: number}
 ): Position => {
   if (!node.quasi.loc || !node.quasi.range) {
     return loc;
@@ -18,6 +19,11 @@ const correctLocation = (
   let newOffset = loc.offset + nodeOffset + 1;
   let currentLine = 1;
   let columnOffset = nodeLoc.start.column + 1;
+
+  if (prefixOffsets) {
+    lineOffset += prefixOffsets.lines;
+    newOffset += prefixOffsets.offset;
+  }
 
   for (let i = 0; i < node.quasi.expressions.length; i++) {
     const expr = node.quasi.expressions[i];
@@ -72,9 +78,7 @@ const correctLocation = (
   if (loc.line === currentLine) {
     loc.column += columnOffset;
   }
-  if (loc.line !== 1) {
-    loc.column += baseIndentation;
-  }
+  loc.column += baseIndentation;
 
   loc.offset = newOffset + indentationOffset;
 
@@ -94,7 +98,7 @@ function computeBeforeAfter(
 ): void {
   if (
     node.raws['before'] &&
-    node.raws['before'].includes('\n') &&
+    (node.raws['before'].includes('\n') || node.parent?.type === 'root') &&
     node.source?.start
   ) {
     const raw = node.raws['before'];
@@ -140,14 +144,16 @@ export function locationCorrectionWalker(
       node.source.start = correctLocation(
         expr,
         node.source.start,
-        baseIndentations
+        baseIndentations,
+        root.raws['litPrefixOffsets']
       );
     }
     if (node.source?.end) {
       node.source.end = correctLocation(
         expr,
         node.source.end,
-        baseIndentations
+        baseIndentations,
+        root.raws['litPrefixOffsets']
       );
     }
   };

@@ -16,7 +16,7 @@ describe('parse', () => {
     assert.equal(root.type, 'root');
     assert.equal(rule.type, 'rule');
     assert.equal(colour.type, 'decl');
-    assert.equal(root.raws.codeBefore, '\n      css`');
+    assert.equal(root.raws.codeBefore, '\n      css`\n');
     assert.equal(root.parent, ast);
     assert.equal(root.raws.codeAfter, '`;\n    ');
     assert.deepEqual(ast.source!.start, {
@@ -73,7 +73,7 @@ describe('parse', () => {
     const root2 = ast.nodes[1] as Root;
 
     assert.equal(root1.type, 'root');
-    assert.equal(root1.raws.codeBefore, '\n      css`');
+    assert.equal(root1.raws.codeBefore, '\n      css`\n');
     assert.equal(root1.raws.codeAfter, undefined);
     assert.equal(root1.parent, ast);
     assert.equal(root2.type, 'root');
