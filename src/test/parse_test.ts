@@ -115,6 +115,33 @@ describe('parse', () => {
     assert.equal(ast.source!.input.css, source);
   });
 
+  it('should parse multi-line stylesheets containing expressions', async () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          color: hotpink;
+          $\{expr}
+        }
+      \`;
+    `);
+    const root = ast.nodes[0] as Root;
+    const rule = root.nodes[0] as Rule;
+    const colour = rule.nodes[0] as Declaration;
+    assert.equal(ast.type, 'document');
+    assert.equal(root.type, 'root');
+    assert.equal(rule.type, 'rule');
+    assert.equal(colour.type, 'decl');
+    assert.equal(root.raws.codeBefore, '\n      css`\n');
+    assert.equal(root.parent, ast);
+    assert.equal(root.raws.codeAfter, '`;\n    ');
+    assert.deepEqual(ast.source!.start, {
+      line: 1,
+      column: 1,
+      offset: 0
+    });
+    assert.equal(ast.source!.input.css, source);
+  });
+
   it('should parse CSS containing an expression', () => {
     const {source, ast} = createTestAst(`
       css\`

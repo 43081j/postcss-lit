@@ -29,6 +29,65 @@ describe('locationCorrection', () => {
     assert.equal(getSourceForNodeByRange(source, colour), 'color: hotpink;');
   });
 
+  it('should handle multi-line CSS', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          color: hotpink;
+        }
+      \`;
+    `);
+    const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
+    const colour = rule.nodes[0] as Declaration;
+    assert.equal(colour.type, 'decl');
+    assert.equal(rule.type, 'rule');
+    assert.equal(
+      getSourceForNodeByLoc(source, rule),
+      `.foo {
+          color: hotpink;
+        }`
+    );
+    assert.equal(getSourceForNodeByLoc(source, colour), 'color: hotpink;');
+    assert.equal(
+      getSourceForNodeByRange(source, rule),
+      `.foo {
+          color: hotpink;
+        }`
+    );
+    assert.equal(getSourceForNodeByRange(source, colour), 'color: hotpink;');
+  });
+
+  it('should handle multi-line CSS with expressions', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          color: hotpink;
+          $\{expr}
+        }
+      \`;
+    `);
+    const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
+    const colour = rule.nodes[0] as Declaration;
+    assert.equal(colour.type, 'decl');
+    assert.equal(rule.type, 'rule');
+    assert.equal(
+      getSourceForNodeByLoc(source, rule),
+      `.foo {
+          color: hotpink;
+          $\{expr}
+        }`
+    );
+    assert.equal(getSourceForNodeByLoc(source, colour), 'color: hotpink;');
+    assert.equal(
+      getSourceForNodeByRange(source, rule),
+      `.foo {
+          color: hotpink;
+          $\{expr}
+        }`
+    );
+    assert.equal(getSourceForNodeByRange(source, colour), 'color: hotpink;');
+  });
+
   it('should handle single line expressions', () => {
     const {source, ast} = createTestAst(`css\`.foo { color: hotpink; }\`;`);
     const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
