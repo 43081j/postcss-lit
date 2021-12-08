@@ -66,14 +66,60 @@ export const parse: Parser<Root | Document> = (
       }
     }
 
-    const root = postcssParse(styleText, {
+    const baseIndentation = (node.quasi.loc?.end.column ?? 1) - 1;
+    const sourceLines = styleText.split('\n');
+    const baseIndentations = new Map<number, number>();
+    const indentationPattern = new RegExp(`^[ \\t]{${baseIndentation}}`);
+    const emptyLinePattern = /^[ \\t\r]*$/;
+    const deindentedLines: string[] = [];
+    const prefixOffsets = {lines: 0, offset: 0};
+
+    if (sourceLines[0] !== undefined && emptyLinePattern.test(sourceLines[0])) {
+      prefixOffsets.lines = 1;
+      prefixOffsets.offset = sourceLines[0].length + 1;
+      sourceLines.shift();
+    }
+
+    for (let i = 0; i < sourceLines.length; i++) {
+      const sourceLine = sourceLines[i];
+      if (sourceLine !== undefined) {
+        if (indentationPattern.test(sourceLine)) {
+          deindentedLines.push(sourceLine.replace(indentationPattern, ''));
+          baseIndentations.set(i + 1, baseIndentation);
+          // Roots don't have an end line, so we can't look this up so easily
+          // later on. Having a special '-1' key helps here.
+          if (i === sourceLines.length - 1) {
+            baseIndentations.set(-1, baseIndentation);
+          }
+        } else {
+          deindentedLines.push(sourceLine);
+        }
+      }
+    }
+
+    const deindentedStyleText = deindentedLines.join('\n');
+    const root = postcssParse(deindentedStyleText, {
       ...opts,
       map: false
     }) as Root;
 
-    root.raws['templateExpressions'] = expressionStrings;
-    root.raws.codeBefore = sourceAsString.slice(currentOffset, startIndex);
+    root.raws['litPrefixOffsets'] = prefixOffsets;
+    root.raws['litTemplateExpressions'] = expressionStrings;
+    root.raws['litBaseIndentations'] = baseIndentations;
+    // TODO (43081j): remove this if stylelint/stylelint#5767 ever gets fixed,
+    // or they drop the indentation rule. Their indentation rule depends on
+    // `beforeStart` existing as they unsafely try to call `endsWith` on it.
+    if (!root.raws['beforeStart']) {
+      root.raws['beforeStart'] = '';
+    }
+    root.raws.codeBefore = sourceAsString.slice(
+      currentOffset,
+      startIndex + prefixOffsets.offset
+    );
     root.parent = doc;
+    // TODO (43081j): stylelint relies on this existing, really unsure why.
+    // it could just access root.parent to get the document...
+    (root as Root & {document: Document}).document = doc;
     const walker = locationCorrectionWalker(node);
     walker(root);
     root.walk(walker);

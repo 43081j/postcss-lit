@@ -123,4 +123,26 @@ describe('stylelint', () => {
     `
     );
   });
+
+  it('should be compatible with indentation rule', async () => {
+    const source = `
+      css\`
+        .foo {
+          width: 100px;
+        }
+      \`;
+    `;
+    const result = await stylelint.lint({
+      customSyntax: syntax,
+      code: source,
+      codeFilename: 'foo.js',
+      config: {
+        rules: {
+          indentation: 2
+        }
+      }
+    });
+
+    assert.equal(result.errored, false);
+  });
 });

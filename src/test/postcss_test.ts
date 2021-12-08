@@ -25,7 +25,7 @@ describe('postcss', () => {
     assert.equal(root.type, 'root');
     assert.equal(rule.type, 'rule');
     assert.equal(colour.type, 'decl');
-    assert.equal(root.raws.codeBefore, '\n      css`');
+    assert.equal(root.raws.codeBefore, '\n      css`\n');
     assert.equal(root.parent, ast);
     assert.equal(root.raws.codeAfter, '`;\n    ');
     assert.deepEqual(ast.source!.start, {

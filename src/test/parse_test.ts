@@ -16,7 +16,7 @@ describe('parse', () => {
     assert.equal(root.type, 'root');
     assert.equal(rule.type, 'rule');
     assert.equal(colour.type, 'decl');
-    assert.equal(root.raws.codeBefore, '\n      css`');
+    assert.equal(root.raws.codeBefore, '\n      css`\n');
     assert.equal(root.parent, ast);
     assert.equal(root.raws.codeAfter, '`;\n    ');
     assert.deepEqual(ast.source!.start, {
@@ -73,7 +73,7 @@ describe('parse', () => {
     const root2 = ast.nodes[1] as Root;
 
     assert.equal(root1.type, 'root');
-    assert.equal(root1.raws.codeBefore, '\n      css`');
+    assert.equal(root1.raws.codeBefore, '\n      css`\n');
     assert.equal(root1.raws.codeAfter, undefined);
     assert.equal(root1.parent, ast);
     assert.equal(root2.type, 'root');
@@ -81,6 +81,59 @@ describe('parse', () => {
     assert.equal(root2.raws.codeAfter, '`;\n    ');
     assert.equal(root2.parent, ast);
 
+    assert.deepEqual(ast.source!.start, {
+      line: 1,
+      column: 1,
+      offset: 0
+    });
+    assert.equal(ast.source!.input.css, source);
+  });
+
+  it('should parse multi-line stylesheets', async () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          color: hotpink;
+        }
+      \`;
+    `);
+    const root = ast.nodes[0] as Root;
+    const rule = root.nodes[0] as Rule;
+    const colour = rule.nodes[0] as Declaration;
+    assert.equal(ast.type, 'document');
+    assert.equal(root.type, 'root');
+    assert.equal(rule.type, 'rule');
+    assert.equal(colour.type, 'decl');
+    assert.equal(root.raws.codeBefore, '\n      css`\n');
+    assert.equal(root.parent, ast);
+    assert.equal(root.raws.codeAfter, '`;\n    ');
+    assert.deepEqual(ast.source!.start, {
+      line: 1,
+      column: 1,
+      offset: 0
+    });
+    assert.equal(ast.source!.input.css, source);
+  });
+
+  it('should parse multi-line stylesheets containing expressions', async () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          color: hotpink;
+          $\{expr}
+        }
+      \`;
+    `);
+    const root = ast.nodes[0] as Root;
+    const rule = root.nodes[0] as Rule;
+    const colour = rule.nodes[0] as Declaration;
+    assert.equal(ast.type, 'document');
+    assert.equal(root.type, 'root');
+    assert.equal(rule.type, 'rule');
+    assert.equal(colour.type, 'decl');
+    assert.equal(root.raws.codeBefore, '\n      css`\n');
+    assert.equal(root.parent, ast);
+    assert.equal(root.raws.codeAfter, '`;\n    ');
     assert.deepEqual(ast.source!.start, {
       line: 1,
       column: 1,
