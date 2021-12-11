@@ -60,6 +60,9 @@ class LitStringifier extends Stringifier {
     if (own === 'before' && node.raws['before'] && node.raws['litBefore']) {
       return node.raws['litBefore'];
     }
+    if (own === 'after' && node.raws['after'] && node.raws['litAfter']) {
+      return node.raws['litAfter'];
+    }
     return super.raw(node, own, detect);
   }
 }

@@ -151,4 +151,22 @@ describe('stringify', () => {
     `
     );
   });
+
+  it('should handle base indentations', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          color: hotpink;
+        }
+
+        .bar {
+          border: 808em solid cyan;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
 });

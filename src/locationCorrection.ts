@@ -110,11 +110,12 @@ function computeBeforeAfter(
   }
 
   if (
-    node.type === 'root' &&
     node.raws.after &&
-    node.raws.after.includes('\n')
+    node.raws.after.includes('\n') &&
+    (node.type === 'root' || node.source?.end)
   ) {
-    const baseIndentation = baseIndentations.get(-1);
+    const line = node.type === 'root' ? -1 : node.source?.end?.line;
+    const baseIndentation = line && baseIndentations.get(line);
 
     if (baseIndentation !== undefined) {
       node.raws['litAfter'] = node.raws.after + ' '.repeat(baseIndentation);
