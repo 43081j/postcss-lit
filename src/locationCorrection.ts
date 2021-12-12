@@ -121,6 +121,34 @@ function computeBeforeAfter(
       node.raws['litAfter'] = node.raws.after + ' '.repeat(baseIndentation);
     }
   }
+
+  if (
+    node.type === 'rule' &&
+    node.selector.includes('\n') &&
+    node.source?.start
+  ) {
+    const selectorLines = node.selector.split('\n');
+    const rawLines: string[] = [];
+
+    if (selectorLines[0]) {
+      rawLines.push(selectorLines[0]);
+    }
+
+    for (let i = 1; i < selectorLines.length; i++) {
+      const line = selectorLines[i];
+      if (line !== undefined) {
+        const lineNumber = node.source.start.line + i;
+        const baseIndentation = baseIndentations.get(lineNumber);
+
+        if (baseIndentation !== undefined) {
+          rawLines.push(' '.repeat(baseIndentation) + line);
+        }
+      }
+    }
+
+    (node.raws as unknown as Record<string, unknown>)['litSelector'] =
+      rawLines.join('\n');
+  }
 }
 
 /**

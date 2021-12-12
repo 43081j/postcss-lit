@@ -163,7 +163,8 @@ describe('stringify', () => {
           border: 808em solid cyan;
         }
 
-        .baz {
+        .baz,
+        .baz > .bloop {
   font-size: 32em;
         }
       \`;

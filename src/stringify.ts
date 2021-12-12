@@ -65,6 +65,18 @@ class LitStringifier extends Stringifier {
     }
     return super.raw(node, own, detect);
   }
+
+  /** @inheritdoc */
+  public override rawValue(node: AnyNode, prop: string): string {
+    if (node.type === 'rule' && prop === 'selector') {
+      const raws = node.raws as unknown as Record<string, unknown>;
+      if (raws['litSelector']) {
+        return `${raws['litSelector']}`;
+      }
+    }
+
+    return super.rawValue(node, prop);
+  }
 }
 
 export const stringify: StringifierFn = (
