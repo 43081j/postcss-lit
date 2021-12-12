@@ -162,6 +162,10 @@ describe('stringify', () => {
         .bar {
           border: 808em solid cyan;
         }
+
+        .baz {
+  font-size: 32em;
+        }
       \`;
     `);
 
