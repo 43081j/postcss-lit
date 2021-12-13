@@ -162,10 +162,102 @@ describe('stringify', () => {
         .bar {
           border: 808em solid cyan;
         }
+      \`;
+    `);
 
-        .baz,
-        .baz > .bloop {
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with multi-line rules', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo,
+          .bar {
+            color: hotpink;
+        }
+
+        .x,
+        .x > .y {
   font-size: 32em;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with multi-line declarations', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          margin:
+            1px
+            2px
+            3px
+            4px;
+        }
+
+        .bar {
+          margin: 1px
+            2px
+            3px;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with unusual between values', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          margin
+            :
+              10px;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with unusual before values', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          margin: 10px;
+
+          ;
+
+          margin: 20px;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with unusual after values', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          margin:
+            1px
+            2px;
+
+          ;
+
         }
       \`;
     `);

@@ -63,16 +63,17 @@ class LitStringifier extends Stringifier {
     if (own === 'after' && node.raws['after'] && node.raws['litAfter']) {
       return node.raws['litAfter'];
     }
+    if (own === 'between' && node.raws['between'] && node.raws['litBetween']) {
+      return node.raws['litBetween'];
+    }
     return super.raw(node, own, detect);
   }
 
   /** @inheritdoc */
   public override rawValue(node: AnyNode, prop: string): string {
-    if (node.type === 'rule' && prop === 'selector') {
-      const raws = node.raws as unknown as Record<string, unknown>;
-      if (raws['litSelector']) {
-        return `${raws['litSelector']}`;
-      }
+    const litProp = `lit${prop[0]?.toUpperCase()}${prop.slice(1)}`;
+    if (Object.prototype.hasOwnProperty.call(node.raws, litProp)) {
+      return `${node.raws[litProp]}`;
     }
 
     return super.rawValue(node, prop);
