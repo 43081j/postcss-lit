@@ -266,4 +266,15 @@ describe('stringify', () => {
 
     assert.equal(output, source);
   });
+
+  it('should stringify non-css JS', () => {
+    const {source, ast} = createTestAst(`
+      const a = 5;
+      const b = 303;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
 });

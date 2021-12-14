@@ -2,6 +2,7 @@ import {
   Stringifier as StringifierFn,
   Comment,
   Root,
+  Document,
   AnyNode,
   Builder
 } from 'postcss';
@@ -33,6 +34,15 @@ class LitStringifier extends Stringifier {
     }
 
     super.comment(node);
+  }
+
+  /** @inheritdoc */
+  public override document(node: Document): void {
+    if (node.nodes.length === 0) {
+      this.builder(node.source?.input.css ?? '');
+    } else {
+      super.document(node);
+    }
   }
 
   /** @inheritdoc */
