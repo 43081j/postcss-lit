@@ -277,4 +277,24 @@ describe('stringify', () => {
 
     assert.equal(output, source);
   });
+
+  it('should stringify empty CSS', () => {
+    const {source, ast} = createTestAst(`
+      css\`\`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should stringify single-line CSS', () => {
+    const {source, ast} = createTestAst(`
+      css\`.foo { color: hotpink; }\`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
 });
