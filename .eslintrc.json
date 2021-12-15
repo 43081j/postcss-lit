@@ -8,6 +8,7 @@
   "plugins": ["@typescript-eslint"],
   "rules": {
     "indent": "off",
+    "operator-linebreak": "off",
     "quote-props": "off",
     "max-len": [
       "error",

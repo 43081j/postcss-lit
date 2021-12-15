@@ -2,6 +2,7 @@ import {
   Stringifier as StringifierFn,
   Comment,
   Root,
+  Document,
   AnyNode,
   Builder
 } from 'postcss';
@@ -36,6 +37,15 @@ class LitStringifier extends Stringifier {
   }
 
   /** @inheritdoc */
+  public override document(node: Document): void {
+    if (node.nodes.length === 0) {
+      this.builder(node.source?.input.css ?? '');
+    } else {
+      super.document(node);
+    }
+  }
+
+  /** @inheritdoc */
   public override root(node: Root): void {
     this.builder(node.raws.codeBefore ?? '', node, 'start');
 
@@ -60,7 +70,23 @@ class LitStringifier extends Stringifier {
     if (own === 'before' && node.raws['before'] && node.raws['litBefore']) {
       return node.raws['litBefore'];
     }
+    if (own === 'after' && node.raws['after'] && node.raws['litAfter']) {
+      return node.raws['litAfter'];
+    }
+    if (own === 'between' && node.raws['between'] && node.raws['litBetween']) {
+      return node.raws['litBetween'];
+    }
     return super.raw(node, own, detect);
+  }
+
+  /** @inheritdoc */
+  public override rawValue(node: AnyNode, prop: string): string {
+    const litProp = `lit${prop[0]?.toUpperCase()}${prop.slice(1)}`;
+    if (Object.prototype.hasOwnProperty.call(node.raws, litProp)) {
+      return `${node.raws[litProp]}`;
+    }
+
+    return super.rawValue(node, prop);
   }
 }
 

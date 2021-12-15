@@ -74,7 +74,11 @@ export const parse: Parser<Root | Document> = (
     const deindentedLines: string[] = [];
     const prefixOffsets = {lines: 0, offset: 0};
 
-    if (sourceLines[0] !== undefined && emptyLinePattern.test(sourceLines[0])) {
+    if (
+      sourceLines.length > 1 &&
+      sourceLines[0] !== undefined &&
+      emptyLinePattern.test(sourceLines[0])
+    ) {
       prefixOffsets.lines = 1;
       prefixOffsets.offset = sourceLines[0].length + 1;
       sourceLines.shift();

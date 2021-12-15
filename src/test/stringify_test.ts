@@ -151,4 +151,150 @@ describe('stringify', () => {
     `
     );
   });
+
+  it('should handle base indentations', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          color: hotpink;
+        }
+
+        .bar {
+          border: 808em solid cyan;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with multi-line rules', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo,
+          .bar {
+            color: hotpink;
+        }
+
+        .x,
+        .x > .y {
+  font-size: 32em;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with multi-line declarations', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          margin:
+            1px
+            2px
+            3px
+            4px;
+        }
+
+        .bar {
+          margin: 1px
+            2px
+            3px;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with unusual between values', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          margin
+            :
+              10px;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with unusual before values', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          margin: 10px;
+
+          ;
+
+          margin: 20px;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should deal with unusual after values', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          margin:
+            1px
+            2px;
+
+          ;
+
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should stringify non-css JS', () => {
+    const {source, ast} = createTestAst(`
+      const a = 5;
+      const b = 303;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should stringify empty CSS', () => {
+    const {source, ast} = createTestAst(`
+      css\`\`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should stringify single-line CSS', () => {
+    const {source, ast} = createTestAst(`
+      css\`.foo { color: hotpink; }\`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
 });
