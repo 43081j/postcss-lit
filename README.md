@@ -45,3 +45,21 @@ Or with the CLI:
 ```sh
 stylelint --custom-syntax postcss-lit
 ```
+
+### Usage with vscode-stylelint
+
+In order to make the
+[vscode-stylelint](https://github.com/stylelint/vscode-stylelint)
+extension work with this syntax correctly, you must configure it
+to validate JS and/or TypeScript files.
+
+You can do this by following these
+[instructions](https://github.com/stylelint/vscode-stylelint#stylelintvalidate).
+
+For example:
+
+```json
+{
+  "stylelint.validate": ["css", "javascript", "typescript"]
+}
+```
