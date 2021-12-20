@@ -1,6 +1,6 @@
 {
   "name": "postcss-lit",
-  "version": "0.3.0",
+  "version": "0.3.1-tailwind.2",
   "description": "Lit support for PostCSS and related tooling",
   "main": "lib/main.js",
   "files": [
@@ -20,6 +20,7 @@
   "author": "James Garbutt (https://github.com/43081j)",
   "license": "MIT",
   "devDependencies": {
+    "@types/babel__generator": "^7.6.3",
     "@types/babel__traverse": "^7.14.2",
     "@types/chai": "^4.2.22",
     "@types/mocha": "^9.0.0",
@@ -41,6 +42,7 @@
     "postcss": "^8.3.11"
   },
   "dependencies": {
+    "@babel/generator": "^7.16.5",
     "@babel/parser": "^7.16.2",
     "@babel/traverse": "^7.16.0"
   }

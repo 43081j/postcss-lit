@@ -63,3 +63,48 @@ For example:
   "stylelint.validate": ["css", "javascript", "typescript"]
 }
 ```
+
+## Usage with tailwind
+
+In your `postcss.config.js`:
+
+```ts
+module.exports = {
+  syntax: 'postcss-lit',
+  plugins: {
+    tailwindcss: {}
+  }
+};
+```
+
+In your `tailwind.config.js`:
+
+```ts
+const {tailwindTransform} = require('postcss-lit');
+
+module.exports = {
+  content: {
+    files: ['./src/**/*.ts'],
+    transform: {
+      ts: tailwindTransform
+    }
+  }
+};
+```
+
+You may then use tailwind's directives and classes in your elements:
+
+```ts
+class MyElement extends LitElement {
+  static styles = css`
+    @tailwind base;
+    @tailwind utilities;
+  `;
+
+  render() {
+    return html`
+      <div class="text-xs">Small text</div>
+    `;
+  }
+}
+```
