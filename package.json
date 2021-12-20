@@ -1,6 +1,6 @@
 {
   "name": "postcss-lit",
-  "version": "0.4.1-backticks.0",
+  "version": "0.4.1-backticks.1",
   "description": "Lit support for PostCSS and related tooling",
   "main": "lib/main.js",
   "files": [
