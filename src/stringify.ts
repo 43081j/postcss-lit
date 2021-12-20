@@ -15,6 +15,7 @@ const placeholderPattern = /^POSTCSS_LIT:\d+$/;
  * into account.
  */
 class LitStringifier extends Stringifier {
+  /** @inheritdoc */
   public constructor(builder: Builder) {
     const wrappedBuilder: Builder = (
       str: string,
