@@ -5,5 +5,5 @@ import {extractTemplates} from './extractTemplates';
 export = {
   parse,
   stringify,
-  tailwind: extractTemplates
+  tailwindTransform: extractTemplates
 };

@@ -80,12 +80,14 @@ module.exports = {
 In your `tailwind.config.js`:
 
 ```ts
-const {transform} = require('postcss-lit');
+const {tailwindTransform} = require('postcss-lit');
 
 module.exports = {
   content: {
     files: ['./src/**/*.ts'],
-    transform
+    transform: {
+      ts: tailwindTransform
+    }
   }
 };
 ```
