@@ -1,9 +1,9 @@
 import {parse} from './parse.js';
 import {stringify} from './stringify.js';
-import {extractTemplates} from './extractTemplates';
+import {stripStyles} from './stripStyles';
 
 export = {
   parse,
   stringify,
-  tailwindTransform: extractTemplates
+  tailwindTransform: stripStyles
 };
