@@ -30,6 +30,35 @@ module.exports = {
 };
 ```
 
+### PostCSS with webpack
+
+If you use webpack to execute postcss, you must ensure the right order of
+loaders, like so:
+
+```ts
+module.exports = {
+  entry: './src/my-element.ts',
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: ['postcss-loader', 'ts-loader'],
+        exclude: /node_modules/
+      }
+    ]
+  },
+  resolve: {
+    extensions: ['.ts']
+  },
+  output: {
+    filename: 'bundle.js'
+  }
+};
+```
+
+This is important as postcss will transform your CSS _before_ typescript
+transpiles to JS (which is what you want to happen).
+
 ## Usage with stylelint
 
 In your `.stylelintrc.json` (or other stylelint config file):
@@ -108,3 +137,7 @@ class MyElement extends LitElement {
   }
 }
 ```
+
+### Tailwind with webpack
+
+See the same advice as with postcss standalone, [here](#postcss-with-webpack).

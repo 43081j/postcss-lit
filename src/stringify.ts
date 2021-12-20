@@ -16,6 +16,27 @@ const placeholderPattern = /^POSTCSS_LIT:\d+$/;
  */
 class LitStringifier extends Stringifier {
   /** @inheritdoc */
+  public constructor(builder: Builder) {
+    const wrappedBuilder: Builder = (
+      str: string,
+      node?: AnyNode,
+      type?: 'start' | 'end'
+    ): void => {
+      // We purposely ignore the root node since the only thing we should
+      // be stringifying here is already JS (before/after raws) so likely
+      // already contains backticks on purpose.
+      //
+      // For everything else, we want to escape backticks.
+      if (node?.type === 'root') {
+        builder(str, node, type);
+      } else {
+        builder(str.replace(/`/g, '\\`'), node, type);
+      }
+    };
+    super(wrappedBuilder);
+  }
+
+  /** @inheritdoc */
   public override comment(node: Comment): void {
     if (placeholderPattern.test(node.text)) {
       const [, expressionIndexString] = node.text.split(':');
