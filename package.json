@@ -1,6 +1,6 @@
 {
   "name": "postcss-lit",
-  "version": "0.3.1-tailwind.2",
+  "version": "0.4.0",
   "description": "Lit support for PostCSS and related tooling",
   "main": "lib/main.js",
   "files": [
