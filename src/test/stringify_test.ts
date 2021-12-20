@@ -1,3 +1,4 @@
+import {Root, Rule, Declaration} from 'postcss';
 import {assert} from 'chai';
 import {createTestAst} from './util.js';
 import syntax = require('../main.js');
@@ -296,5 +297,25 @@ describe('stringify', () => {
     const output = ast.toString(syntax);
 
     assert.equal(output, source);
+  });
+
+  it('should escape backticks', () => {
+    const {ast} = createTestAst(`
+      css\`.foo { color: hotpink; }\`;
+    `);
+
+    const root = ast.nodes[0] as Root;
+    const rule = root.nodes[0] as Rule;
+    const colour = rule.nodes[0] as Declaration;
+
+    colour.raws.between = ': /*comment with `backticks`*/';
+
+    const output = ast.toString(syntax);
+    assert.equal(
+      output,
+      `
+      css\`.foo { color: /*comment with \\\`backticks\\\`*/hotpink; }\`;
+    `
+    );
   });
 });
