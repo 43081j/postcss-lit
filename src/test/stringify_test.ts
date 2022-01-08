@@ -318,4 +318,18 @@ describe('stringify', () => {
     `
     );
   });
+
+  it('should not escape unrelated backticks', () => {
+    const {ast} = createTestAst(`
+      html\`<div></div>\`;
+    `);
+    const output = ast.toString(syntax);
+
+    assert.equal(
+      output,
+      `
+      html\`<div></div>\`;
+    `
+    );
+  });
 });
