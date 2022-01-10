@@ -26,8 +26,12 @@ class LitStringifier extends Stringifier {
       // be stringifying here is already JS (before/after raws) so likely
       // already contains backticks on purpose.
       //
+      // Similarly, if there is no node, we're probably stringifying
+      // pure JS which never contained any CSS. Or something really weird
+      // we don't want to touch anyway.
+      //
       // For everything else, we want to escape backticks.
-      if (node?.type === 'root') {
+      if (!node || node?.type === 'root') {
         builder(str, node, type);
       } else {
         builder(str.replace(/`/g, '\\`'), node, type);
