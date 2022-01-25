@@ -138,6 +138,15 @@ class MyElement extends LitElement {
 }
 ```
 
+You **must** specify all
+[tailwind directives](https://tailwindcss.com/docs/functions-and-directives)
+you intend to use in your CSS, otherwise their replacement CSS will be
+incorrectly appended to the end of the document.
+
+For example, in the code above, `@tailwind base` and `@tailwind utilities`
+were specified to make `text-xs` available. Without them, the code would not
+build.
+
 ### Tailwind with webpack
 
 See the same advice as with postcss standalone, [here](#postcss-with-webpack).
