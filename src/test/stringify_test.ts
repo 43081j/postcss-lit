@@ -332,4 +332,37 @@ describe('stringify', () => {
     `
     );
   });
+
+  it('should not escape unrelated backslashes', () => {
+    const {ast} = createTestAst(`
+      const foo = 'abc\\def';
+    `);
+    const output = ast.toString(syntax);
+
+    assert.equal(
+      output,
+      `
+      const foo = 'abc\\def';
+    `
+    );
+  });
+
+  it('should escape backslashes', () => {
+    const {ast} = createTestAst(`
+      css\`.foo { color: hotpink; }\`;
+    `);
+
+    const root = ast.nodes[0] as Root;
+    const rule = root.nodes[0] as Rule;
+
+    rule.selector = '.foo\\:bar';
+
+    const output = ast.toString(syntax);
+    assert.equal(
+      output,
+      `
+      css\`.foo\\\\:bar { color: hotpink; }\`;
+    `
+    );
+  });
 });
