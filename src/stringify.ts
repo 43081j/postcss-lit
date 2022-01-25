@@ -34,7 +34,7 @@ class LitStringifier extends Stringifier {
       if (!node || node?.type === 'root') {
         builder(str, node, type);
       } else {
-        builder(str.replace(/`/g, '\\`'), node, type);
+        builder(str.replace(/\\/g, '\\\\').replace(/`/g, '\\`'), node, type);
       }
     };
     super(wrappedBuilder);
