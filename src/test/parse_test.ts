@@ -44,6 +44,23 @@ describe('parse', () => {
     assert.equal(colour.type, 'decl');
   });
 
+  it('should parse JSX', () => {
+    const {ast} = createTestAst(`
+      const someObj = {a: {b: 2}};
+      const someJsx = (<div>funky</div>);
+      css\`
+        .foo { color: hotpink; }
+      \`;
+    `);
+    const root = ast.nodes[0] as Root;
+    const rule = root.nodes[0] as Rule;
+    const colour = rule.nodes[0] as Declaration;
+    assert.equal(ast.type, 'document');
+    assert.equal(root.type, 'root');
+    assert.equal(rule.type, 'rule');
+    assert.equal(colour.type, 'decl');
+  });
+
   it('should parse typescript', () => {
     const {ast} = createTestAst(`
       function doStuff(x: number, y: number): void {}
