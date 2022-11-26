@@ -1,5 +1,11 @@
-import {Parser, Root, Document, ProcessOptions, Input} from 'postcss';
-import postcssParse from 'postcss/lib/parse';
+import {
+  parse as parseCSS,
+  Parser,
+  Root,
+  Document,
+  ProcessOptions,
+  Input
+} from 'postcss';
 import {parse as babelParse} from '@babel/parser';
 import {default as traverse, NodePath} from '@babel/traverse';
 import {TaggedTemplateExpression} from '@babel/types';
@@ -53,6 +59,7 @@ export const parse: Parser<Root | Document> = (
     const startIndex = node.quasi.range[0] + 1;
 
     const expressionStrings: string[] = [];
+    const placeholders = new Map<number, string>();
     let styleText = '';
 
     for (let i = 0; i < node.quasi.quasis.length; i++) {
@@ -68,7 +75,13 @@ export const parse: Parser<Root | Document> = (
             template.range[1],
             nextTemplate.range[0]
           );
-          styleText += createPlaceholder(i);
+          const placeholder = createPlaceholder(
+            i,
+            styleText,
+            nextTemplate?.value.raw
+          );
+          placeholders.set(i, placeholder);
+          styleText += placeholder;
           expressionStrings.push(exprText);
         }
       }
@@ -110,13 +123,14 @@ export const parse: Parser<Root | Document> = (
     }
 
     const deindentedStyleText = deindentedLines.join('\n');
-    const root = postcssParse(deindentedStyleText, {
+    const root = parseCSS(deindentedStyleText, {
       ...opts,
       map: false
     }) as Root;
 
     root.raws['litPrefixOffsets'] = prefixOffsets;
     root.raws['litTemplateExpressions'] = expressionStrings;
+    root.raws['litPlaceholders'] = placeholders;
     root.raws['litBaseIndentations'] = baseIndentations;
     // TODO (43081j): remove this if stylelint/stylelint#5767 ever gets fixed,
     // or they drop the indentation rule. Their indentation rule depends on

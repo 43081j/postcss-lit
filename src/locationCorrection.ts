@@ -6,7 +6,8 @@ const correctLocation = (
   node: TaggedTemplateExpression,
   loc: Position,
   baseIndentations: Map<number, number>,
-  prefixOffsets?: {lines: number; offset: number}
+  prefixOffsets?: {lines: number; offset: number},
+  placeholders?: Map<number, string>
 ): Position => {
   if (!node.quasi.loc || !node.quasi.range) {
     return loc;
@@ -23,6 +24,12 @@ const correctLocation = (
   if (prefixOffsets) {
     lineOffset += prefixOffsets.lines;
     newOffset += prefixOffsets.offset;
+  }
+
+  if (baseIndentations) {
+    for (let i = 1; i <= loc.line; i++) {
+      newOffset += baseIndentations.get(i) ?? 0;
+    }
   }
 
   for (let i = 0; i < node.quasi.expressions.length; i++) {
@@ -42,7 +49,8 @@ const correctLocation = (
       nextQuasi.range &&
       previousQuasi.range[1] < newOffset
     ) {
-      const placeholderSize = createPlaceholder(i).length;
+      const placeholder = placeholders?.get(i) ?? createPlaceholder(i);
+      const placeholderSize = placeholder.length;
       const exprSize =
         nextQuasi.range[0] - previousQuasi.range[1] - placeholderSize;
       const exprStartLine = previousQuasi.loc.end.line;
@@ -66,21 +74,12 @@ const correctLocation = (
     }
   }
 
-  let indentationOffset = 0;
-
-  if (baseIndentations) {
-    for (let i = 1; i <= loc.line; i++) {
-      indentationOffset += baseIndentations.get(i) ?? 0;
-    }
-  }
-
   loc.line += lineOffset;
   if (loc.line === currentLine) {
     loc.column += columnOffset;
   }
   loc.column += baseIndentation;
-
-  loc.offset = newOffset + indentationOffset;
+  loc.offset = newOffset;
 
   return loc;
 };
@@ -266,7 +265,8 @@ export function locationCorrectionWalker(
         expr,
         node.source.start,
         baseIndentations,
-        root.raws['litPrefixOffsets']
+        root.raws['litPrefixOffsets'],
+        root.raws['litPlaceholders']
       );
     }
     if (node.source?.end) {
@@ -274,7 +274,8 @@ export function locationCorrectionWalker(
         expr,
         node.source.end,
         baseIndentations,
-        root.raws['litPrefixOffsets']
+        root.raws['litPrefixOffsets'],
+        root.raws['litPlaceholders']
       );
     }
   };
