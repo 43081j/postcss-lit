@@ -204,4 +204,24 @@ describe('parse', () => {
     });
     assert.equal(ast.source!.input.css, source);
   });
+
+  it('should ignore disabled lines', () => {
+    const {ast} = createTestAst(`
+      // postcss-lit-disable-next-line
+      css\`
+        .foo { color: hotpink; }
+      \`;
+    `);
+    assert.equal(ast.nodes.length, 0);
+  });
+
+  it('should ignore deeply disabled lines', () => {
+    const {ast} = createTestAst(`
+      // postcss-lit-disable-next-line
+      someFunction([a, b, css\`
+        .foo { color: hotpink; }
+      \`]);
+    `);
+    assert.equal(ast.nodes.length, 0);
+  });
 });

@@ -3,7 +3,7 @@ import postcssParse from 'postcss/lib/parse';
 import {parse as babelParse} from '@babel/parser';
 import {default as traverse, NodePath} from '@babel/traverse';
 import {TaggedTemplateExpression} from '@babel/types';
-import {createPlaceholder} from './util.js';
+import {createPlaceholder, hasDisableComment} from './util.js';
 import {locationCorrectionWalker} from './locationCorrection.js';
 
 /**
@@ -33,7 +33,11 @@ export const parse: Parser<Root | Document> = (
     TaggedTemplateExpression: (
       path: NodePath<TaggedTemplateExpression>
     ): void => {
-      if (path.node.tag.type === 'Identifier' && path.node.tag.name === 'css') {
+      if (
+        path.node.tag.type === 'Identifier' &&
+        path.node.tag.name === 'css' &&
+        !hasDisableComment(path)
+      ) {
         extractedStyles.add(path.node);
       }
     }
