@@ -4,7 +4,8 @@ import {
   Root,
   Document,
   ProcessOptions,
-  Input
+  Input,
+  CssSyntaxError
 } from 'postcss';
 import {parse as babelParse} from '@babel/parser';
 import {default as traverse, NodePath} from '@babel/traverse';
@@ -123,10 +124,30 @@ export const parse: Parser<Root | Document> = (
     }
 
     const deindentedStyleText = deindentedLines.join('\n');
-    const root = parseCSS(deindentedStyleText, {
-      ...opts,
-      map: false
-    }) as Root;
+    let root: Root;
+
+    try {
+      root = parseCSS(deindentedStyleText, {
+        ...opts,
+        map: false
+      }) as Root;
+    } catch (err) {
+      if (err instanceof CssSyntaxError) {
+        const line = node.loc ? ` (Line ${node.loc.start.line})` : '';
+
+        console.warn(
+          '[postcss-lit]',
+          `Skipping template${line}` +
+            ' as it included either invalid syntax or complex' +
+            ' expressions the plugin could not interpret. Consider using a' +
+            ' "// postcss-lit-disable-next-line" comment to disable' +
+            ' this message'
+        );
+      }
+      // skip this template since it included invalid
+      // CSS or overly complex interpolations presumably
+      continue;
+    }
 
     root.raws['litPrefixOffsets'] = prefixOffsets;
     root.raws['litTemplateExpressions'] = expressionStrings;

@@ -371,4 +371,14 @@ describe('parse', () => {
     `);
     assert.equal(ast.nodes.length, 0);
   });
+
+  it('should ignore invalid templates', () => {
+    const {ast} = createTestAst(`
+      css\`
+        .foo { /* absolute nonsense */
+      \`;
+    `);
+
+    assert.equal(ast.nodes.length, 0);
+  });
 });
