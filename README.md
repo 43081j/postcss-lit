@@ -150,3 +150,103 @@ build.
 ### Tailwind with webpack
 
 See the same advice as with postcss standalone, [here](#postcss-with-webpack).
+
+## Disable specific templates
+
+You can use `postcss-lit-disable-next-line` to disable a particular template
+from being processed:
+
+```ts
+// postcss-lit-disable-next-line
+css`some template`;
+```
+
+These templates will be left as-is and won't make their way through postcss.
+
+## Note on expressions/interpolation
+
+Often you may end up with expressions in your templates. For example:
+
+```ts
+css`
+  .foo {
+    color: ${expr};
+  }
+`;
+```
+
+These can be very difficult to support at build-time since we have no useful
+run-time information for what the expression might be.
+
+Due to these difficulties, we officially support _complete_ syntax being
+interpolated, though other cases may still work.
+
+A few **supported** examples:
+
+```ts
+// Entire selector bound in
+css`
+  ${expr} {
+    color: hotpink;
+  }
+`;
+
+// Entire property bound in
+css`
+  .foo {
+    ${expr}: hotpink;
+  }
+`;
+
+// Entire value bound in
+css`
+  .foo {
+    color: ${expr};
+  }
+`;
+
+// Entire statement bound in
+css`
+  .foo {
+    ${expr}
+  }
+`;
+
+// Entire block bound in
+css`
+  .foo {}
+  ${expr}
+`;
+```
+
+And a few **unsupported** examples (though some _may_ work, they are not
+officially supported):
+
+```ts
+// Part of a selector bound in
+css`
+  .foo, ${expr} {
+    color: hotpink;
+  }
+`;
+
+// Part of a value bound in
+css`
+  .foo {
+    color: hot${expr};
+  }
+`;
+
+// Part of a property bound in
+css`
+  .foo {
+    col${expr}: hotpink;
+  }
+`;
+```
+
+In cases we fail to parse, we will raise a warning in the console and skip
+the template (i.e. leave it untouched and won't process it).
+
+You can then use a `// postcss-lit-disable-next-line` comment to silence the
+warning.

@@ -1,4 +1,4 @@
-import {Root, Rule, Declaration, Comment} from 'postcss';
+import {Root, Rule, Declaration, Comment, AtRule} from 'postcss';
 import {assert} from 'chai';
 import {createTestAst} from './util.js';
 
@@ -162,18 +162,17 @@ describe('parse', () => {
   it('should parse CSS containing an expression', () => {
     const {source, ast} = createTestAst(`
       css\`
-        .foo { $\{expr}color: hotpink; }
+        .foo { $\{expr}: hotpink; }
       \`;
     `);
     const root = ast.nodes[0] as Root;
     const rule = root.nodes[0] as Rule;
-    const placeholder = rule.nodes[0] as Comment;
-    const colour = rule.nodes[1] as Declaration;
+    const expr = rule.nodes[0] as Declaration;
     assert.equal(ast.type, 'document');
     assert.equal(root.type, 'root');
     assert.equal(rule.type, 'rule');
-    assert.equal(placeholder.type, 'comment');
-    assert.equal(colour.type, 'decl');
+    assert.equal(expr.type, 'decl');
+    assert.equal(expr.prop, '--POSTCSS_LIT_0');
     assert.equal(ast.source!.input.css, source);
   });
 
@@ -205,6 +204,154 @@ describe('parse', () => {
     assert.equal(ast.source!.input.css, source);
   });
 
+  it('should parse expression in selector position', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        $\{expr} {
+          color: hotpink;
+        }
+      \`;
+    `);
+    assert.equal(ast.source!.input.css, source);
+    const root = ast.nodes[0] as Root;
+
+    const rule0 = root.nodes[0] as Rule;
+    assert.equal(rule0.type, 'rule');
+    assert.equal(rule0.selector, 'POSTCSS_LIT_0');
+  });
+
+  it('should parse expression in property position', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        foo {
+          $\{expr}: hotpink;
+        }
+      \`;
+    `);
+    assert.equal(ast.source!.input.css, source);
+    const root = ast.nodes[0] as Root;
+
+    const rule0 = root.nodes[0] as Rule;
+    const rule0Statement0 = rule0.nodes[0] as Declaration;
+    assert.equal(rule0Statement0.type, 'decl');
+    assert.equal(rule0Statement0.prop, '--POSTCSS_LIT_0');
+  });
+
+  it('should parse expression in value position', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        foo {
+          color: $\{expr};
+        }
+      \`;
+    `);
+    assert.equal(ast.source!.input.css, source);
+    const root = ast.nodes[0] as Root;
+
+    const rule0 = root.nodes[0] as Rule;
+    const rule0Statement0 = rule0.nodes[0] as Declaration;
+    assert.equal(rule0Statement0.type, 'decl');
+    assert.equal(rule0Statement0.prop, 'color');
+    assert.equal(rule0Statement0.value, 'POSTCSS_LIT_0');
+  });
+
+  it('should parse expression in comment', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        foo {
+          color: hotpink;
+        }
+
+        /* a real comment $\{expr} */
+      \`;
+    `);
+    assert.equal(ast.source!.input.css, source);
+    const root = ast.nodes[0] as Root;
+
+    const comment = root.nodes[1] as Comment;
+    assert.equal(comment.text, 'a real comment POSTCSS_LIT_0');
+  });
+
+  it('should parse expression in block position', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {}
+
+        $\{expr}
+      \`;
+    `);
+    assert.equal(ast.source!.input.css, source);
+    const root = ast.nodes[0] as Root;
+
+    const rule0 = root.nodes[1] as Comment;
+    assert.equal(rule0.type, 'comment');
+    assert.equal(rule0.text, 'POSTCSS_LIT_0');
+  });
+
+  it('should parse expression in statement position', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          $\{expr}
+        }
+
+        .bar {
+          color: hotpink;
+          $\{expr}
+        }
+      \`;
+    `);
+    assert.equal(ast.source!.input.css, source);
+    const root = ast.nodes[0] as Root;
+
+    const rule0 = root.nodes[0] as Rule;
+    const comment0 = rule0.nodes[0] as Comment;
+    assert.equal(comment0.type, 'comment');
+    assert.equal(comment0.text, 'POSTCSS_LIT_0');
+
+    const rule1 = root.nodes[1] as Rule;
+    const comment1 = rule1.nodes[1] as Comment;
+    assert.equal(comment1.type, 'comment');
+    assert.equal(comment1.text, 'POSTCSS_LIT_1');
+  });
+
+  it('should parse expression in statement position of at-rule', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        @foo {
+          .foo {
+            $\{expr}
+          }
+        }
+      \`;
+    `);
+    assert.equal(ast.source!.input.css, source);
+    const root = ast.nodes[0] as Root;
+
+    const atRule = root.nodes[0] as AtRule;
+    const rule = atRule.nodes[0] as Rule;
+    const comment = rule.nodes[0] as Comment;
+    assert.equal(comment.type, 'comment');
+    assert.equal(comment.text, 'POSTCSS_LIT_0');
+  });
+
+  it('should parse expression in block position of at-rule', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        @foo {
+          $\{expr}
+        }
+      \`;
+    `);
+    assert.equal(ast.source!.input.css, source);
+    const root = ast.nodes[0] as Root;
+
+    const atRule = root.nodes[0] as AtRule;
+    const comment = atRule.nodes[0] as Comment;
+    assert.equal(comment.type, 'comment');
+    assert.equal(comment.text, 'POSTCSS_LIT_0');
+  });
+
   it('should ignore disabled lines', () => {
     const {ast} = createTestAst(`
       // postcss-lit-disable-next-line
@@ -222,6 +369,16 @@ describe('parse', () => {
         .foo { color: hotpink; }
       \`]);
     `);
+    assert.equal(ast.nodes.length, 0);
+  });
+
+  it('should ignore invalid templates', () => {
+    const {ast} = createTestAst(`
+      css\`
+        .foo { /* absolute nonsense */
+      \`;
+    `);
+
     assert.equal(ast.nodes.length, 0);
   });
 });

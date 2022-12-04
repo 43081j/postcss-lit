@@ -1,14 +1,12 @@
 import {
   Stringifier as StringifierFn,
-  Comment,
   Root,
   Document,
   AnyNode,
   Builder
 } from 'postcss';
 import Stringifier from 'postcss/lib/stringifier';
-
-const placeholderPattern = /^POSTCSS_LIT:\d+$/;
+import {defaultPlaceholder, placeholderMapping, Position} from './util.js';
 
 /**
  * Stringifies PostCSS nodes while taking interpolated expressions
@@ -34,31 +32,56 @@ class LitStringifier extends Stringifier {
       if (!node || node?.type === 'root') {
         builder(str, node, type);
       } else {
-        builder(str.replace(/\\/g, '\\\\').replace(/`/g, '\\`'), node, type);
+        let processedString = str.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
+
+        const mappingKeys = [...Object.keys(placeholderMapping), 'default'];
+
+        for (const key of mappingKeys) {
+          const mapping =
+            key === 'default'
+              ? defaultPlaceholder
+              : placeholderMapping[key as Position];
+
+          if (mapping) {
+            processedString = processedString.replace(
+              mapping.regex,
+              (placeholder, i) =>
+                this._replacePlaceholders(placeholder, node, Number(i))
+            );
+          }
+        }
+
+        builder(processedString, node, type);
       }
     };
     super(wrappedBuilder);
   }
 
-  /** @inheritdoc */
-  public override comment(node: Comment): void {
-    if (placeholderPattern.test(node.text)) {
-      const [, expressionIndexString] = node.text.split(':');
-      const expressionIndex = Number(expressionIndexString);
-      const root = node.root();
-      const expressionStrings = root.raws['litTemplateExpressions'];
+  /**
+   * Replaces a placeholder with the original expression it represents
+   * @param {string} placeholder Original placeholder string
+   * @param {AnyNode} node Node which contains the placeholder
+   * @param {number} expressionIndex Index of the expression this is a
+   * placeholder for
+   * @return {string}
+   */
+  protected _replacePlaceholders(
+    placeholder: string,
+    node: AnyNode,
+    expressionIndex: number
+  ): string {
+    const root = node.root();
+    const expressionStrings = root.raws['litTemplateExpressions'];
 
-      if (expressionStrings && !Number.isNaN(expressionIndex)) {
-        const expression = expressionStrings[expressionIndex];
+    if (expressionStrings && !Number.isNaN(expressionIndex)) {
+      const expression = expressionStrings[expressionIndex];
 
-        if (expression) {
-          this.builder(expression, node);
-          return;
-        }
+      if (expression) {
+        return expression;
       }
     }
 
-    super.comment(node);
+    return placeholder;
   }
 
   /** @inheritdoc */

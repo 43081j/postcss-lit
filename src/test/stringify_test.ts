@@ -42,6 +42,23 @@ describe('stringify', () => {
     assert.equal(output, source);
   });
 
+  it('should stringify expressions with unusual positions', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        h$\{i} {
+          color: hotpink;
+        }
+        .foo {
+          padding: 0px $\{expr\};
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
   it('should stringify multiple expressions', () => {
     const {source, ast} = createTestAst(`
       css\`
@@ -114,7 +131,7 @@ describe('stringify', () => {
       output,
       `
       css\`
-        .foo { /*POSTCSS_LIT:0*/color: hotpink; }
+        .foo { /*POSTCSS_LIT_0*/color: hotpink; }
       \`;
     `
     );
@@ -147,7 +164,7 @@ describe('stringify', () => {
       output,
       `
       css\`
-        .foo { /*POSTCSS_LIT:0*/color: hotpink; }
+        .foo { /*POSTCSS_LIT_0*/color: hotpink; }
       \`;
     `
     );
