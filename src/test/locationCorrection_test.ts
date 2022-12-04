@@ -150,6 +150,58 @@ describe('locationCorrection', () => {
     assert.equal(getSourceForNodeByRange(source, colour), 'color: ${expr};');
   });
 
+  it('should account for expressions in unusual positions', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        h$\{i} {
+          color: hotpink;
+        }
+        .foo {
+          padding: 0px $\{expr\};
+        }
+      \`;
+    `);
+    const root = ast.nodes[0] as Root;
+    const rule0 = root.nodes[0] as Rule;
+    const rule1 = root.nodes[1] as Rule;
+    const padding = rule1.nodes[0] as Declaration;
+    assert.equal(padding.type, 'decl');
+    assert.equal(rule0.type, 'rule');
+    assert.equal(rule1.type, 'rule');
+    assert.equal(
+      getSourceForNodeByLoc(source, rule0),
+      `h$\{i} {
+          color: hotpink;
+        }`
+    );
+    assert.equal(
+      getSourceForNodeByLoc(source, rule1),
+      `.foo {
+          padding: 0px $\{expr\};
+        }`
+    );
+    assert.equal(
+      getSourceForNodeByLoc(source, padding),
+      'padding: 0px ${expr};'
+    );
+    assert.equal(
+      getSourceForNodeByRange(source, rule0),
+      `h$\{i} {
+          color: hotpink;
+        }`
+    );
+    assert.equal(
+      getSourceForNodeByRange(source, rule1),
+      `.foo {
+          padding: 0px $\{expr\};
+        }`
+    );
+    assert.equal(
+      getSourceForNodeByRange(source, padding),
+      'padding: 0px ${expr};'
+    );
+  });
+
   it('should account for multiple single-line expressions', () => {
     const {source, ast} = createTestAst(`
       css\`
