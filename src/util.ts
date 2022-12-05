@@ -60,15 +60,15 @@ export const placeholderMapping: Partial<Record<Position, PlaceholderConfig>> =
   {
     block: {
       create(key) {
-        return `/*POSTCSS_LIT_${key}*/`;
+        return `/* POSTCSS_LIT_${key} */`;
       },
-      regex: /\/\*POSTCSS_LIT_(\d+)\*\//
+      regex: /\/\* POSTCSS_LIT_(\d+)\*\//
     },
     statement: {
       create(key) {
-        return `/*POSTCSS_LIT_${key}*/`;
+        return `/* POSTCSS_LIT_${key} */`;
       },
-      regex: /\/\*POSTCSS_LIT_(\d+)\*\//
+      regex: /\/\* POSTCSS_LIT_(\d+) \*\//
     },
     property: {
       create(key) {
