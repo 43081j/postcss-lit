@@ -131,7 +131,7 @@ describe('stringify', () => {
       output,
       `
       css\`
-        .foo { /*POSTCSS_LIT_0*/color: hotpink; }
+        .foo { /* POSTCSS_LIT_0 */color: hotpink; }
       \`;
     `
     );
@@ -164,7 +164,7 @@ describe('stringify', () => {
       output,
       `
       css\`
-        .foo { /*POSTCSS_LIT_0*/color: hotpink; }
+        .foo { /* POSTCSS_LIT_0 */color: hotpink; }
       \`;
     `
     );
