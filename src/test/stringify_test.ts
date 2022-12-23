@@ -124,7 +124,7 @@ describe('stringify', () => {
     `);
 
     const root = ast.nodes[0]!;
-    root.raws['litTemplateExpressions'] = undefined;
+    root.raws['lit'] = undefined;
     const output = ast.toString(syntax);
 
     assert.equal(
@@ -157,7 +157,7 @@ describe('stringify', () => {
     `);
 
     const root = ast.nodes[0]!;
-    root.raws['litTemplateExpressions'] = [];
+    root.raws['lit']['replacements'] = [];
     const output = ast.toString(syntax);
 
     assert.equal(
