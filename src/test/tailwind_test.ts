@@ -1,5 +1,7 @@
 import {assert} from 'chai';
-import {tailwindTransform} from '../main.js';
+import main = require('../main.js');
+
+const {tailwindTransform} = main;
 
 describe('tailwindTransform', () => {
   it('should strip CSS templates', () => {
