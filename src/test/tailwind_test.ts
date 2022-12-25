@@ -1,7 +1,9 @@
 import {assert} from 'chai';
-import {stripStyles} from '../stripStyles.js';
+import main = require('../main.js');
 
-describe('stripStyles', () => {
+const {tailwindTransform} = main;
+
+describe('tailwindTransform', () => {
   it('should strip CSS templates', () => {
     const source = `
       html\`
@@ -12,7 +14,7 @@ describe('stripStyles', () => {
         .foo { color: blue; }
       \`;
     `;
-    const output = stripStyles(source);
+    const output = tailwindTransform(source);
     const expected = `html\`
         <div>Foo</div>
       \`;`;
@@ -34,7 +36,7 @@ describe('stripStyles', () => {
         \}</p>
       \`;
     `;
-    const output = stripStyles(source);
+    const output = tailwindTransform(source);
     const expected = `html\`
         <div>$\{foo}</div>
         <p>$\{bar\}</p>

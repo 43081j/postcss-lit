@@ -172,7 +172,7 @@ describe('parse', () => {
     assert.equal(root.type, 'root');
     assert.equal(rule.type, 'rule');
     assert.equal(expr.type, 'decl');
-    assert.equal(expr.prop, '--POSTCSS_LIT_0');
+    assert.equal(expr.prop, '--POSTCSS_lit_0');
     assert.equal(ast.source!.input.css, source);
   });
 
@@ -217,7 +217,7 @@ describe('parse', () => {
 
     const rule0 = root.nodes[0] as Rule;
     assert.equal(rule0.type, 'rule');
-    assert.equal(rule0.selector, 'POSTCSS_LIT_0');
+    assert.equal(rule0.selector, 'POSTCSS_lit_0');
   });
 
   it('should parse expression in property position', () => {
@@ -234,7 +234,7 @@ describe('parse', () => {
     const rule0 = root.nodes[0] as Rule;
     const rule0Statement0 = rule0.nodes[0] as Declaration;
     assert.equal(rule0Statement0.type, 'decl');
-    assert.equal(rule0Statement0.prop, '--POSTCSS_LIT_0');
+    assert.equal(rule0Statement0.prop, '--POSTCSS_lit_0');
   });
 
   it('should parse expression in value position', () => {
@@ -252,7 +252,7 @@ describe('parse', () => {
     const rule0Statement0 = rule0.nodes[0] as Declaration;
     assert.equal(rule0Statement0.type, 'decl');
     assert.equal(rule0Statement0.prop, 'color');
-    assert.equal(rule0Statement0.value, 'POSTCSS_LIT_0');
+    assert.equal(rule0Statement0.value, 'POSTCSS_lit_0');
   });
 
   it('should parse expression in comment', () => {
@@ -269,7 +269,7 @@ describe('parse', () => {
     const root = ast.nodes[0] as Root;
 
     const comment = root.nodes[1] as Comment;
-    assert.equal(comment.text, 'a real comment POSTCSS_LIT_0');
+    assert.equal(comment.text, 'a real comment POSTCSS_lit_0');
   });
 
   it('should parse expression in block position', () => {
@@ -285,7 +285,7 @@ describe('parse', () => {
 
     const rule0 = root.nodes[1] as Comment;
     assert.equal(rule0.type, 'comment');
-    assert.equal(rule0.text, 'POSTCSS_LIT_0');
+    assert.equal(rule0.text, 'POSTCSS_lit_0');
   });
 
   it('should parse expression in statement position', () => {
@@ -307,12 +307,12 @@ describe('parse', () => {
     const rule0 = root.nodes[0] as Rule;
     const comment0 = rule0.nodes[0] as Comment;
     assert.equal(comment0.type, 'comment');
-    assert.equal(comment0.text, 'POSTCSS_LIT_0');
+    assert.equal(comment0.text, 'POSTCSS_lit_0');
 
     const rule1 = root.nodes[1] as Rule;
     const comment1 = rule1.nodes[1] as Comment;
     assert.equal(comment1.type, 'comment');
-    assert.equal(comment1.text, 'POSTCSS_LIT_1');
+    assert.equal(comment1.text, 'POSTCSS_lit_1');
   });
 
   it('should parse expression in statement position of at-rule', () => {
@@ -332,7 +332,7 @@ describe('parse', () => {
     const rule = atRule.nodes[0] as Rule;
     const comment = rule.nodes[0] as Comment;
     assert.equal(comment.type, 'comment');
-    assert.equal(comment.text, 'POSTCSS_LIT_0');
+    assert.equal(comment.text, 'POSTCSS_lit_0');
   });
 
   it('should parse expression in block position of at-rule', () => {
@@ -349,7 +349,7 @@ describe('parse', () => {
     const atRule = root.nodes[0] as AtRule;
     const comment = atRule.nodes[0] as Comment;
     assert.equal(comment.type, 'comment');
-    assert.equal(comment.text, 'POSTCSS_LIT_0');
+    assert.equal(comment.text, 'POSTCSS_lit_0');
   });
 
   it('should ignore disabled lines', () => {
