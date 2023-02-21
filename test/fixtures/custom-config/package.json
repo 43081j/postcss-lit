@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "name": "custom-config-in-postcss-lit",
+  "version": "1.0.0",
+  "main": "main.js",
+  "postcss-lit": {
+    "babelOptions": {
+      "plugins": []
+    }
+  }
+}

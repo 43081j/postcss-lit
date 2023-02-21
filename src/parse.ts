@@ -12,6 +12,9 @@ import {default as traverse, NodePath} from '@babel/traverse';
 import {TaggedTemplateExpression} from '@babel/types';
 import {createPlaceholder, hasDisableComment} from './util.js';
 import {locationCorrectionWalker} from './locationCorrection.js';
+import {getUserConfig} from './userConfig.js';
+
+const configKey = 'postcss-lit';
 
 /**
  * Parses CSS from within tagged template literals in a JavaScript document
@@ -25,14 +28,10 @@ export const parse: Parser<Root | Document> = (
 ): Root | Document => {
   const doc = new Document();
   const sourceAsString = source.toString();
+  const userConfig = getUserConfig(configKey);
+
   const ast = babelParse(sourceAsString, {
-    sourceType: 'unambiguous',
-    plugins: [
-      'typescript',
-      ['decorators', {decoratorsBeforeExport: true}],
-      'jsx'
-    ],
-    ranges: true
+    ...userConfig.babelOptions
   });
   const extractedStyles = new Set<TaggedTemplateExpression>();
 
