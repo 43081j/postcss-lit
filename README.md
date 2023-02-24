@@ -250,3 +250,19 @@ the template (i.e. leave it untouched and won't process it).
 
 You can then use a `// postcss-lit-disable-next-line` comment to silence the
 warning.
+
+## Custom babel options
+
+You may customise the babel options via your `package.json`:
+
+```json
+{
+  "postcss-lit": {
+    "babelOptions": {
+    }
+  }
+}
+```
+
+The available options are listed
+[here](https://babeljs.io/docs/babel-parser#options).

@@ -1,3 +1,4 @@
+import {cwd, chdir} from 'process';
 import {Root, Rule, Declaration, Comment, AtRule} from 'postcss';
 import {assert} from 'chai';
 import {createTestAst} from './util.js';
@@ -380,5 +381,25 @@ describe('parse', () => {
     `);
 
     assert.equal(ast.nodes.length, 0);
+  });
+
+  it('should respect custom config', () => {
+    const currentDir = cwd();
+
+    chdir('./test/fixtures/custom-config');
+
+    try {
+      createTestAst(`
+        css\`
+          .foo { color: hotpink; }
+        \`;
+        const x = (<div></div>);
+      `);
+      assert.fail();
+    } catch (err) {
+      assert.equal((err as Error).name, 'SyntaxError');
+    } finally {
+      chdir(currentDir);
+    }
   });
 });
