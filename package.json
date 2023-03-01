@@ -1,6 +1,6 @@
 {
   "name": "postcss-lit",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Lit support for PostCSS and related tooling",
   "main": "lib/main.js",
   "files": [
