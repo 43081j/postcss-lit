@@ -122,7 +122,9 @@ export const parse: Parser<Root | Document> = (
       }
     }
 
-    const deindentedStyleText = deindentedLines.join('\n');
+    const deindentedStyleText = deindentedLines
+      .join('\n')
+      .replace(/\\\\/g, '\\');
     let root: Root;
 
     try {

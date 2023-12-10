@@ -364,7 +364,7 @@ describe('stringify', () => {
     );
   });
 
-  it('should escape backslashes', () => {
+  it('should escape backslashes from mutated ast', () => {
     const {ast} = createTestAst(`
       css\`.foo { color: hotpink; }\`;
     `);
@@ -379,6 +379,20 @@ describe('stringify', () => {
       output,
       `
       css\`.foo\\\\:bar { color: hotpink; }\`;
+    `
+    );
+  });
+
+  it('should escape backslashes from input', () => {
+    const {ast} = createTestAst(`
+      css\`.foo { content: "\\\\eee"; }\`;
+    `);
+
+    const output = ast.toString(syntax);
+    assert.equal(
+      output,
+      `
+      css\`.foo { content: "\\\\eee"; }\`;
     `
     );
   });
