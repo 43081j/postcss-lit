@@ -134,7 +134,7 @@ export const parse: Parser<Root | Document> = (
       }) as Root;
     } catch (err) {
       if (err instanceof CssSyntaxError) {
-        const line = node.loc ? ` (Line ${node.loc.start.line})` : '';
+        const line = node.loc ? ` (${opts.from}:${node.loc.start.line})` : opts.from;
 
         console.warn(
           '[postcss-lit]',
