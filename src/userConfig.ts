@@ -10,6 +10,7 @@ const defaultConfig: UserConfig = {
     sourceType: 'unambiguous',
     plugins: [
       'typescript',
+      ['importAttributes', {deprecatedAssertSyntax: true}],
       ['decorators', {decoratorsBeforeExport: true}],
       'jsx'
     ],

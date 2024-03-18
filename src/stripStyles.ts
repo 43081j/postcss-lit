@@ -11,7 +11,11 @@ import {default as generate} from '@babel/generator';
 export function stripStyles(content: string): string {
   const ast = parse(content, {
     sourceType: 'unambiguous',
-    plugins: ['typescript', ['decorators', {decoratorsBeforeExport: true}]],
+    plugins: [
+      'typescript',
+      ['importAttributes', {deprecatedAssertSyntax: true}],
+      ['decorators', {decoratorsBeforeExport: true}]
+    ],
     ranges: true
   });
 
