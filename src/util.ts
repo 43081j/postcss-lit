@@ -8,7 +8,7 @@ import {TaggedTemplateExpression, Comment} from '@babel/types';
  */
 export function isDisableComment(node: Comment): boolean {
   return (
-    node.type === 'CommentLine' &&
+    node && node.type === 'CommentLine' &&
     node.value.includes('postcss-lit-disable-next-line')
   );
 }
@@ -20,18 +20,10 @@ export function isDisableComment(node: Comment): boolean {
 export function hasDisableComment(
   path: NodePath<TaggedTemplateExpression>
 ): boolean {
-  const statement = path.getStatementParent();
-
-  if (statement && statement.node.leadingComments) {
-    const comment =
-      statement.node.leadingComments[statement.node.leadingComments.length - 1];
-
-    if (comment !== undefined && isDisableComment(comment)) {
-      return true;
-    }
-  }
-
-  return false;
+  // The comment could be directly above the statement or above the parent node
+  const leadingComments = path.node.leadingComments ?? path.getStatementParent()?.node.leadingComments;
+  // There could be multiple preceding the comments
+  return leadingComments?.some(comment => isDisableComment(comment)) ?? false;
 }
 
 export type Position =
