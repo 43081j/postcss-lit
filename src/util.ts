@@ -8,7 +8,7 @@ import {TaggedTemplateExpression, Comment} from '@babel/types';
  */
 export function isDisableComment(node: Comment): boolean {
   return (
-    node && node.type === 'CommentLine' &&
+    node.type === 'CommentLine' &&
     node.value.includes('postcss-lit-disable-next-line')
   );
 }
