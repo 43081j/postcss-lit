@@ -20,7 +20,7 @@ export function isDisableComment(node: Comment): boolean {
 export function hasDisableComment(
   path: NodePath<TaggedTemplateExpression>
 ): boolean {
-  // The comment could be directly above the statement or above the parent node
+  // The comment could be above the parent node or directly above the statement
   const leadingComments = path.getStatementParent()?.node.leadingComments ?? path.node.leadingComments;
   // There could be multiple preceding the comments
   return leadingComments?.some(comment => isDisableComment(comment)) ?? false;
