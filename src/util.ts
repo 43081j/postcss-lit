@@ -22,6 +22,7 @@ export function hasDisableComment(
 ): boolean {
   // The comment could be above the parent node or directly above the statement
   const leadingComments = path.getStatementParent()?.node.leadingComments ??
+    path.parent.leadingComments ??
     path.node.leadingComments;
   // There could be multiple preceding the comments
   return leadingComments?.some((comment) => isDisableComment(comment)) ?? false;
