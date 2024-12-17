@@ -20,6 +20,10 @@
   },
   "author": "James Garbutt (https://github.com/43081j)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/43081j/postcss-lit.git"
+  },
   "devDependencies": {
     "@types/babel__generator": "^7.6.3",
     "@types/babel__traverse": "^7.14.2",
