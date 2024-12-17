@@ -20,18 +20,14 @@ export function isDisableComment(node: Comment): boolean {
 export function hasDisableComment(
   path: NodePath<TaggedTemplateExpression>
 ): boolean {
-  const statement = path.getStatementParent();
-
-  if (statement && statement.node.leadingComments) {
-    const comment =
-      statement.node.leadingComments[statement.node.leadingComments.length - 1];
-
-    if (comment !== undefined && isDisableComment(comment)) {
-      return true;
-    }
-  }
-
-  return false;
+  // The comment could be directly above the node or above any of its parents
+  return (
+    path.find(
+      (p) =>
+        // There could be multiple preceding the comments
+        p.node.leadingComments?.some(isDisableComment) === true
+    ) !== null
+  );
 }
 
 export type Position =

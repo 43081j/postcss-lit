@@ -363,6 +363,47 @@ describe('parse', () => {
     assert.equal(ast.nodes.length, 0);
   });
 
+  it('should ignore a child node', () => {
+    const {ast} = createTestAst(`
+      class MyClass {
+        // postcss-lit-disable-next-line
+        static style = css\`
+          .foo { color: hotpink; }
+        \`;
+      }
+    `);
+
+    assert.equal(ast.nodes.length, 0);
+  });
+
+  it('should ignore a child node from an array', () => {
+    const {ast} = createTestAst(`
+      class MyClass {
+        static style = [
+          // postcss-lit-disable-next-line
+          css\`
+            .foo { color: hotpink; }
+          \`,
+        ];
+      }
+    `);
+
+    assert.equal(ast.nodes.length, 0);
+  });
+
+  it('should ignore everything inside a disabled parent node', () => {
+    const {ast} = createTestAst(`
+      // postcss-lit-disable-next-line
+      class MyClass {
+        static style = css\`
+          .foo { color: hotpink; }
+        \`;
+      }
+    `);
+
+    assert.equal(ast.nodes.length, 0);
+  });
+
   it('should ignore deeply disabled lines', () => {
     const {ast} = createTestAst(`
       // postcss-lit-disable-next-line
