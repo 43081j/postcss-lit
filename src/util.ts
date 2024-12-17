@@ -21,9 +21,12 @@ export function hasDisableComment(
   path: NodePath<TaggedTemplateExpression>
 ): boolean {
   // The comment could be directly above the node or above any of its parents
-  return !!path.find((p) =>
-    // There could be multiple preceding the comments
-    !!p.node.leadingComments?.some((comment) => isDisableComment(comment))
+  return (
+    path.find(
+      (p) =>
+        // There could be multiple preceding the comments
+        p.node.leadingComments?.some(isDisableComment) === true
+    ) !== null
   );
 }
 
