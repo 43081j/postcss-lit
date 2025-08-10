@@ -33,9 +33,9 @@ export interface RollupPostcssLitOptions {
  * @param {Partial<RollupPostcssLitOptions>} options Optional plugin options.
  * @return {Plugin} A Rollup plugin object.
  */
-export function RollupPostcssLit(
+export const RollupPostcssLit = (
   options: Partial<RollupPostcssLitOptions> = {}
-): Plugin {
+): Plugin => {
   const globInclude = joinGlobs(options.globInclude ?? '**/*.{js,ts}');
   const globExclude = joinGlobs(options.globExclude ?? '');
 
