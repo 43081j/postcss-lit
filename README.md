@@ -65,7 +65,7 @@ If you use vite or rollup, you can simply use the `RollupPostcssLit` plugin:
 
 ```js
 // rollup.config.js
-import { RollupPostcssLit } from 'postcss-lit';
+const { RollupPostcssLit } = require('postcss-lit');
 
 export default {
   plugins: [
