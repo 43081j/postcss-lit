@@ -59,6 +59,32 @@ module.exports = {
 This is important as postcss will transform your CSS _before_ typescript
 transpiles to JS (which is what you want to happen).
 
+## Usage with Vite or Rollup
+
+If you use vite or rollup, you can simply use the `RollupPostcssLit` plugin:
+
+```js
+// rollup.config.js
+import { RollupPostcssLit } from 'postcss-lit';
+
+export default {
+  plugins: [
+    RollupPostcssLit({
+      // process only files in the `src` directory
+      globInclude: 'src/**/*.{js,ts}',
+      // exclude files with `-legacy.js` in their name
+      globExclude: '**/*-legacy.js'
+    })
+  ]
+}
+```
+
+The plugin will transform your CSS from template literals inside JS/TS
+files using PostCSS. It will also automatically use local PostCSS config files.
+
+You can use the optional `globInclude` and `globExclude` plugin options
+to specify which files should be processed by PostCSS.
+
 ## Usage with stylelint
 
 In your `.stylelintrc.json` (or other stylelint config file):
