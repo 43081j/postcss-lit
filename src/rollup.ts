@@ -63,7 +63,7 @@ export const RollupPostcssLit = (
       return undefined;
     }
   };
-}
+};
 
 /**
  * Joins an array of glob patterns into a single, unified glob pattern.
