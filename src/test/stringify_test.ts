@@ -49,7 +49,7 @@ describe('stringify', () => {
           color: hotpink;
         }
         .foo {
-          padding: 0px $\{expr\};
+          padding: 0px $\{expr};
         }
       \`;
     `);
