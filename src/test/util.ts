@@ -45,5 +45,5 @@ export function getSourceForNodeByRange(source: string, node: Node): string {
     return '';
   }
 
-  return source.substring(node.source.start.offset, node.source.end.offset + 1);
+  return source.substring(node.source.start.offset, node.source.end.offset);
 }

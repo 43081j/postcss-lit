@@ -330,7 +330,7 @@ describe('parse', () => {
     const root = ast.nodes[0] as Root;
 
     const atRule = root.nodes[0] as AtRule;
-    const rule = atRule.nodes[0] as Rule;
+    const rule = atRule.nodes![0] as Rule;
     const comment = rule.nodes[0] as Comment;
     assert.equal(comment.type, 'comment');
     assert.equal(comment.text, 'POSTCSS_LIT_0');
@@ -348,7 +348,7 @@ describe('parse', () => {
     const root = ast.nodes[0] as Root;
 
     const atRule = root.nodes[0] as AtRule;
-    const comment = atRule.nodes[0] as Comment;
+    const comment = atRule.nodes![0] as Comment;
     assert.equal(comment.type, 'comment');
     assert.equal(comment.text, 'POSTCSS_LIT_0');
   });
