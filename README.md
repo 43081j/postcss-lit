@@ -61,10 +61,11 @@ transpiles to JS (which is what you want to happen).
 
 ## Usage with Vite or Rollup
 
-If you use vite or rollup, you can simply use the `RollupPostcssLit` plugin:
+If you use vite or rollup, you can simply use the `rollupPostCSSLit` plugin:
 
 ```js
 // rollup.config.js
+// IMPORTANT: since we're still CommonJS, use a default import
 import postcssLit from 'postcss-lit';
 
 export default {
