@@ -1,6 +1,6 @@
-import stylelint = require('stylelint');
+import stylelint from 'stylelint';
 import {assert} from 'chai';
-import syntax = require('../main.js');
+import syntax from '../main.js';
 
 describe('stylelint', () => {
   it('should be lintable by stylelint', async () => {
@@ -26,10 +26,15 @@ describe('stylelint', () => {
     assert.deepEqual(fooResult.warnings, [
       {
         line: 3,
-        column: 23,
+        column: 26,
+        endLine: 3,
+        endColumn: 35,
         rule: 'unit-no-unknown',
         severity: 'error',
-        text: 'Unexpected unknown unit "nanoacres" (unit-no-unknown)'
+        text: 'Unexpected unknown unit "nanoacres" (unit-no-unknown)',
+        // Since strict optional types won't allow this
+        fix: undefined as never,
+        url: undefined as never
       }
     ]);
   });
@@ -37,7 +42,7 @@ describe('stylelint', () => {
   it('should be fixable by stylelint', async () => {
     const source = `
       css\`
-        .foo { color: hotpink;; }
+        .foo { color: hotpink; color: red; }
       \`;
     `;
     const result = await stylelint.lint({
@@ -47,16 +52,16 @@ describe('stylelint', () => {
       fix: true,
       config: {
         rules: {
-          'no-extra-semicolons': true
+          'declaration-block-no-duplicate-properties': true
         }
       }
     });
 
     assert.equal(
-      result.output,
+      result.code,
       `
       css\`
-        .foo { color: hotpink; }
+        .foo { color: red; }
       \`;
     `
     );
@@ -65,7 +70,7 @@ describe('stylelint', () => {
   it('should be fixable by stylelint with expressions', async () => {
     const source = `
       css\`
-        .foo { $\{expr}color: hotpink;; }
+        .foo { color: red; $\{expr}color: hotpink; }
       \`;
     `;
     const result = await stylelint.lint({
@@ -75,13 +80,13 @@ describe('stylelint', () => {
       fix: true,
       config: {
         rules: {
-          'no-extra-semicolons': true
+          'declaration-block-no-duplicate-properties': true
         }
       }
     });
 
     assert.equal(
-      result.output,
+      result.code,
       `
       css\`
         .foo { $\{expr}color: hotpink; }
@@ -96,7 +101,7 @@ describe('stylelint', () => {
         $\{
           expr1
         }
-        .foo { $\{expr2}color: hotpink;; }
+        .foo { color: red; $\{expr2}color: hotpink; }
       \`;
     `;
     const result = await stylelint.lint({
@@ -106,13 +111,13 @@ describe('stylelint', () => {
       fix: true,
       config: {
         rules: {
-          'no-extra-semicolons': true
+          'declaration-block-no-duplicate-properties': true
         }
       }
     });
 
     assert.equal(
-      result.output,
+      result.code,
       `
       css\`
         $\{
@@ -122,27 +127,5 @@ describe('stylelint', () => {
       \`;
     `
     );
-  });
-
-  it('should be compatible with indentation rule', async () => {
-    const source = `
-      css\`
-        .foo {
-          width: 100px;
-        }
-      \`;
-    `;
-    const result = await stylelint.lint({
-      customSyntax: syntax,
-      code: source,
-      codeFilename: 'foo.js',
-      config: {
-        rules: {
-          indentation: 2
-        }
-      }
-    });
-
-    assert.equal(result.errored, false);
   });
 });

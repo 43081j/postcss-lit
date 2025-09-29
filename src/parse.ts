@@ -52,7 +52,7 @@ export const parse: Parser<Root | Document> = (
   let currentOffset = 0;
 
   for (const node of extractedStyles) {
-    if (!node.quasi.range) {
+    if (!node.quasi.range || !node.range) {
       continue;
     }
 
@@ -130,6 +130,7 @@ export const parse: Parser<Root | Document> = (
     try {
       root = parseCSS(deindentedStyleText, {
         ...opts,
+        document: sourceAsString,
         map: false
       }) as Root;
     } catch (err) {
