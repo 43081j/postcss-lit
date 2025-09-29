@@ -114,7 +114,7 @@ class LitStringifier extends Stringifier {
     node: AnyNode,
     own: string,
     detect: string | undefined
-  ): string {
+  ): string | boolean {
     if (own === 'before' && node.raws['before'] && node.raws['litBefore']) {
       return node.raws['litBefore'];
     }
@@ -128,7 +128,7 @@ class LitStringifier extends Stringifier {
   }
 
   /** @inheritdoc */
-  public override rawValue(node: AnyNode, prop: string): string {
+  public override rawValue(node: AnyNode, prop: string): string | number {
     const litProp = `lit${prop[0]?.toUpperCase()}${prop.slice(1)}`;
     if (Object.prototype.hasOwnProperty.call(node.raws, litProp)) {
       return `${node.raws[litProp]}`;
