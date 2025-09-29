@@ -109,7 +109,7 @@ describe('locationCorrection', () => {
   it('should account for single-line expressions', () => {
     const {source, ast} = createTestAst(`
       css\`
-        .foo { $\{expr\}: hotpink; }
+        .foo { $\{expr}: hotpink; }
       \`;
     `);
     const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
@@ -131,7 +131,7 @@ describe('locationCorrection', () => {
   it('should account for expressions in value positions', () => {
     const {source, ast} = createTestAst(`
       css\`
-        .foo { color: $\{expr\}; }
+        .foo { color: $\{expr}; }
       \`;
     `);
     const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
@@ -157,7 +157,7 @@ describe('locationCorrection', () => {
           color: hotpink;
         }
         .foo {
-          padding: 0px $\{expr\};
+          padding: 0px $\{expr};
         }
       \`;
     `);
@@ -177,7 +177,7 @@ describe('locationCorrection', () => {
     assert.equal(
       getSourceForNodeByLoc(source, rule1),
       `.foo {
-          padding: 0px $\{expr\};
+          padding: 0px $\{expr};
         }`
     );
     assert.equal(
@@ -193,7 +193,7 @@ describe('locationCorrection', () => {
     assert.equal(
       getSourceForNodeByRange(source, rule1),
       `.foo {
-          padding: 0px $\{expr\};
+          padding: 0px $\{expr};
         }`
     );
     assert.equal(
@@ -205,7 +205,7 @@ describe('locationCorrection', () => {
   it('should account for multiple single-line expressions', () => {
     const {source, ast} = createTestAst(`
       css\`
-        .foo { $\{expr\}: $\{expr2\}; }
+        .foo { $\{expr}: $\{expr2}; }
       \`;
     `);
     const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
@@ -229,7 +229,7 @@ describe('locationCorrection', () => {
       css\`
         .foo { $\{
           expr
-        \}: hotpink; }
+        }: hotpink; }
       \`;
     `);
     const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
@@ -268,8 +268,8 @@ describe('locationCorrection', () => {
         .foo {
           $\{
             expr
-          \}
-          $\{expr2\}
+          }
+          $\{expr2}
         }
       \`;
     `);
@@ -317,7 +317,7 @@ describe('locationCorrection', () => {
     const {source, ast} = createTestAst(`
       css\`
         .foo {
-          color: $\{expr\}
+          color: $\{expr}
         }
       \`;
     `);
@@ -344,7 +344,7 @@ describe('locationCorrection', () => {
     const {source, ast} = createTestAst(`
       css\`
         .foo {
-          $\{expr\}
+          $\{expr}
         }
       \`;
     `);
@@ -371,7 +371,7 @@ describe('locationCorrection', () => {
     const {source, ast} = createTestAst(`
       css\`
         .foo {
-          $\{expr\}: hotpink;
+          $\{expr}: hotpink;
         }
       \`;
     `);
@@ -452,7 +452,7 @@ describe('locationCorrection', () => {
   it('should account for mixed indentation', () => {
     const {source, ast} = createTestAst(`
       css\`
-  .foo { $\{expr\}: hotpink; }
+  .foo { $\{expr}: hotpink; }
       \`;
     `);
     const rule = (ast.nodes[0] as Root).nodes[0] as Rule;

@@ -31,13 +31,13 @@ describe('stripStyles', () => {
         <div>$\{foo}</div>
         <p>$\{
           bar
-        \}</p>
+        }</p>
       \`;
     `;
     const output = stripStyles(source);
     const expected = `html\`
         <div>$\{foo}</div>
-        <p>$\{bar\}</p>
+        <p>$\{bar}</p>
       \`;`;
     assert.equal(output, expected);
   });

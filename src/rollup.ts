@@ -1,6 +1,3 @@
-import {relative} from 'path';
-
-import {minimatch} from 'minimatch';
 import postcss from 'postcss';
 import postcssLoadConfig, {
   type Result as PostcssConfig
@@ -36,23 +33,21 @@ export interface RollupPostcssLitOptions {
 export const RollupPostcssLit = (
   options: Partial<RollupPostcssLitOptions> = {}
 ): Plugin => {
-  const globInclude = joinGlobs(options.globInclude ?? '**/*.{js,ts}');
-  const globExclude = joinGlobs(options.globExclude ?? '');
-
-  let cwd: string;
   let config: PostcssConfig;
 
   return {
     name: 'rollup-plugin-postcss-lit',
     async buildStart() {
-      cwd = process.cwd();
       config = await postcssLoadConfig({syntax: {parse, stringify}});
     },
-    async transform(code, id) {
-      const path = relative(cwd, id);
-      const isIncluded = minimatch(path, globInclude);
-      const isExcluded = minimatch(path, globExclude);
-      if (isIncluded && !isExcluded) {
+    transform: {
+      filter: {
+        id: {
+          include: options.globInclude,
+          exclude: options.globExclude
+        }
+      },
+      async handler(code, id) {
         const result = await postcss(config.plugins).process(code, {
           ...config.options,
           from: id,
@@ -60,20 +55,6 @@ export const RollupPostcssLit = (
         });
         return {code: result.css};
       }
-      return undefined;
     }
   };
 };
-
-/**
- * Joins an array of glob patterns into a single, unified glob pattern.
- *
- * @param {string | string[]} pattern The glob pattern(s) to join.
- * @return {string} A single glob pattern string.
- */
-function joinGlobs(pattern: string | string[]): string {
-  if (!Array.isArray(pattern)) return pattern;
-  if (!pattern[0]) return '';
-  if (pattern.length === 1) return pattern[0];
-  return `{${pattern.join(',')}}`;
-}
