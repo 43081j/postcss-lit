@@ -65,11 +65,11 @@ If you use vite or rollup, you can simply use the `RollupPostcssLit` plugin:
 
 ```js
 // rollup.config.js
-const { RollupPostcssLit } = require('postcss-lit');
+import postcssLit from 'postcss-lit';
 
 export default {
   plugins: [
-    RollupPostcssLit({
+    postcssLit.rollupPostCSSLit({
       // process only files in the `src` directory
       globInclude: 'src/**/*.{js,ts}',
       // exclude files with `-legacy.js` in their name

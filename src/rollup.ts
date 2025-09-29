@@ -7,7 +7,7 @@ import {type Plugin} from 'rollup';
 import {parse} from './parse.js';
 import {stringify} from './stringify.js';
 
-export interface RollupPostcssLitOptions {
+export interface RollupPostCSSLitOptions {
   /**
    * Files matching any of these patterns will be processed by PostCSS-Lit.
    * For more information, see the [`glob` primer](https://github.com/isaacs/node-glob#glob-primer).
@@ -30,8 +30,8 @@ export interface RollupPostcssLitOptions {
  * @param {Partial<RollupPostcssLitOptions>} options Optional plugin options.
  * @return {Plugin} A Rollup plugin object.
  */
-export const RollupPostcssLit = (
-  options: Partial<RollupPostcssLitOptions> = {}
+export const rollupPostCSSLit = (
+  options: Partial<RollupPostCSSLitOptions> = {}
 ): Plugin => {
   let config: PostcssConfig;
 
