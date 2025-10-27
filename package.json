@@ -29,9 +29,9 @@
     "@eslint/js": "^9.38.0",
     "@types/babel__generator": "^7.6.3",
     "@types/babel__traverse": "^7.14.2",
-    "@types/chai": "^5.2.2",
+    "@types/chai": "^5.2.3",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^24.8.1",
+    "@types/node": "^24.9.1",
     "chai": "^6.0.1",
     "eslint": "^9.38.0",
     "mocha": "^11.7.4",
@@ -42,7 +42,7 @@
     "rollup": "^4.52.5",
     "stylelint": "^16.25.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.1"
+    "typescript-eslint": "^8.46.2"
   },
   "peerDependencies": {
     "postcss": "^8.3.11"
