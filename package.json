@@ -26,23 +26,23 @@
     "url": "git+https://github.com/43081j/postcss-lit.git"
   },
   "devDependencies": {
-    "@eslint/js": "^9.38.0",
+    "@eslint/js": "^9.39.1",
     "@types/babel__generator": "^7.6.3",
     "@types/babel__traverse": "^7.14.2",
     "@types/chai": "^5.2.3",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.0",
     "chai": "^6.0.1",
-    "eslint": "^9.38.0",
-    "mocha": "^11.7.4",
+    "eslint": "^9.39.1",
+    "mocha": "^11.7.5",
     "nyc": "^17.1.0",
     "postcss": "^8.5.6",
     "premove": "^4.0.0",
     "prettier": "^3.6.2",
-    "rollup": "^4.52.5",
+    "rollup": "^4.53.1",
     "stylelint": "^16.25.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.2"
+    "typescript-eslint": "^8.46.3"
   },
   "peerDependencies": {
     "postcss": "^8.3.11"
