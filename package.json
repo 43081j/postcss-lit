@@ -31,18 +31,18 @@
     "@types/babel__traverse": "^7.14.2",
     "@types/chai": "^5.2.3",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^24.10.0",
-    "chai": "^6.0.1",
+    "@types/node": "^24.10.1",
+    "chai": "^6.2.1",
     "eslint": "^9.39.1",
     "mocha": "^11.7.5",
     "nyc": "^17.1.0",
     "postcss": "^8.5.6",
     "premove": "^4.0.0",
     "prettier": "^3.6.2",
-    "rollup": "^4.53.1",
-    "stylelint": "^16.25.0",
+    "rollup": "^4.53.3",
+    "stylelint": "^16.26.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.3"
+    "typescript-eslint": "^8.47.0"
   },
   "peerDependencies": {
     "postcss": "^8.3.11"
