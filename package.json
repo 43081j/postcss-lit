@@ -42,7 +42,7 @@
     "rollup": "^4.54.0",
     "stylelint": "^16.26.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.1"
+    "typescript-eslint": "^8.51.0"
   },
   "peerDependencies": {
     "postcss": "^8.3.11"
