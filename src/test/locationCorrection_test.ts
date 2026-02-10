@@ -5,6 +5,7 @@ import {
   getSourceForNodeByRange,
   getSourceForNodeByLoc
 } from './util.js';
+import syntax = require('../main.js');
 
 describe('locationCorrection', () => {
   it('should translate basic CSS positions', () => {
@@ -523,6 +524,99 @@ describe('locationCorrection', () => {
             4px
             4xp;
         }`
+    );
+  });
+
+  it('should account for indentation in transformed multi-line selectors', () => {
+    const {ast} = createTestAst(`
+      css\`
+        .foo,
+        .bar {
+          color: hotpink;
+        }
+      \`;
+    `);
+    const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
+    rule.selectors = ['.parent .foo', '.parent .bar'];
+    const stringResult = ast.toString(syntax);
+    assert.equal(
+      stringResult,
+      `
+      css\`
+        .parent .foo,
+        .parent .bar {
+          color: hotpink;
+        }
+      \`;
+    `
+    );
+  });
+
+  it('should account for indentation in transformed multi-line values', () => {
+    const {ast} = createTestAst(`
+      css\`
+        .foo,
+        .bar {
+          border-radius:
+            4px
+            8px;
+        }
+      \`;
+    `);
+    const decl = ((ast.nodes[0] as Root).nodes[0] as Rule)
+      .nodes[0] as Declaration;
+    decl.value = `8px
+      12px`;
+    const stringResult = ast.toString(syntax);
+    assert.equal(
+      stringResult,
+      `
+      css\`
+        .foo,
+        .bar {
+          border-radius:
+            8px
+            12px;
+        }
+      \`;
+    `
+    );
+  });
+
+  it('should account for indentation in transformed multi-line at rules', () => {
+    const {ast} = createTestAst(`
+      css\`
+        @media screen and (
+          (min-width: 10rem) and (max-width: 20rem)
+        ) {
+          .foo {
+            border-radius:
+              4px
+              8px;
+          }
+        }
+      \`;
+    `);
+    const atRule = (ast.nodes[0] as Root).nodes[0] as AtRule;
+    atRule.params = `screen and (
+    (min-width: 160px) and (max-width: 320px)
+  )`;
+    const stringResult = ast.toString(syntax);
+    assert.equal(
+      stringResult,
+      `
+      css\`
+        @media screen and (
+          (min-width: 160px) and (max-width: 320px)
+        ) {
+          .foo {
+            border-radius:
+              4px
+              8px;
+          }
+        }
+      \`;
+    `
     );
   });
 });

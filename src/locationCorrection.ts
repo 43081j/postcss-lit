@@ -1,6 +1,16 @@
-import {Root, Position, Document, ChildNode, AnyNode} from 'postcss';
+import {
+  Root,
+  Position,
+  Document,
+  ChildNode,
+  AnyNode,
+  Declaration,
+  AtRule,
+  Rule
+} from 'postcss';
 import {TaggedTemplateExpression} from '@babel/types';
 import {createPlaceholder} from './util.js';
+import {proxyNode, type ProxiedNode} from './proxyNode.js';
 
 const correctLocation = (
   node: TaggedTemplateExpression,
@@ -84,6 +94,52 @@ const correctLocation = (
   return loc;
 };
 
+function isRule<T extends AnyNode>(node: T): node is T & Rule {
+  return node.type === 'rule';
+}
+
+function isDeclaration<T extends AnyNode>(node: T): node is T & Declaration {
+  return node.type === 'decl';
+}
+
+function isAtRule<T extends AnyNode>(node: T): node is T & AtRule {
+  return node.type === 'atrule';
+}
+
+function correctNodeLocation(
+  node: Document | Root | ChildNode,
+  baseIndentations: Map<number, number>
+): void {
+  if (isRule(node) && node.selector.includes('\n')) {
+    const rawValue = computeCorrectedRawValue(
+      node,
+      'selector',
+      baseIndentations
+    );
+
+    if (rawValue !== null) {
+      (node.raws as unknown as Record<string, unknown>)['litSelector'] =
+        rawValue;
+    }
+  }
+
+  if (isDeclaration(node) && node.value.includes('\n')) {
+    const rawValue = computeCorrectedRawValue(node, 'value', baseIndentations);
+
+    if (rawValue !== null) {
+      (node.raws as unknown as Record<string, unknown>)['litValue'] = rawValue;
+    }
+  }
+
+  if (isAtRule(node) && node.params.includes('\n')) {
+    const rawValue = computeCorrectedRawValue(node, 'params', baseIndentations);
+
+    if (rawValue !== null) {
+      (node.raws as unknown as Record<string, unknown>)['litParams'] = rawValue;
+    }
+  }
+}
+
 /**
  * Computes the before/after strings from the original source for
  * restoration later when stringifying.
@@ -143,34 +199,7 @@ function computeBeforeAfter(
     node.raws['litBetween'] = corrected;
   }
 
-  if (node.type === 'rule' && node.selector.includes('\n')) {
-    const rawValue = computeCorrectedRawValue(
-      node,
-      'selector',
-      baseIndentations
-    );
-
-    if (rawValue !== null) {
-      (node.raws as unknown as Record<string, unknown>)['litSelector'] =
-        rawValue;
-    }
-  }
-
-  if (node.type === 'decl' && node.value.includes('\n')) {
-    const rawValue = computeCorrectedRawValue(node, 'value', baseIndentations);
-
-    if (rawValue !== null) {
-      (node.raws as unknown as Record<string, unknown>)['litValue'] = rawValue;
-    }
-  }
-
-  if (node.type === 'atrule' && node.params.includes('\n')) {
-    const rawValue = computeCorrectedRawValue(node, 'params', baseIndentations);
-
-    if (rawValue !== null) {
-      (node.raws as unknown as Record<string, unknown>)['litParams'] = rawValue;
-    }
-  }
+  correctNodeLocation(node, baseIndentations);
 }
 
 /**
@@ -258,6 +287,9 @@ export function locationCorrectionWalker(
 
     if (baseIndentations) {
       computeBeforeAfter(node, baseIndentations);
+      proxyNode(node as ProxiedNode, (proxiedNode) =>
+        correctNodeLocation(proxiedNode, baseIndentations)
+      );
     }
 
     if (node.source?.start) {
