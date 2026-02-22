@@ -6,7 +6,12 @@ import {
   Builder
 } from 'postcss';
 import Stringifier from 'postcss/lib/stringifier';
-import {defaultPlaceholder, placeholderMapping, Position} from './util.js';
+import {
+  defaultPlaceholder,
+  placeholderMapping,
+  Position,
+  computeCorrectedString
+} from './util.js';
 
 /**
  * Stringifies PostCSS nodes while taking interpolated expressions
@@ -99,11 +104,31 @@ class LitStringifier extends Stringifier {
 
     this.body(node);
 
-    // Here we want to recover any previously removed JS indentation
-    // if possible. Otherwise, we use the `after` string as-is.
-    const after = node.raws['litAfter'] ?? node.raws.after;
+    const after = node.raws.after;
     if (after) {
-      this.builder(after);
+      const baseIndentations = node.raws['litBaseIndentations'] as
+        | Map<number, number>
+        | undefined;
+      if (baseIndentations && after.includes('\n')) {
+        const lastChild = node.nodes[node.nodes.length - 1];
+        const endLine = lastChild?.raws['litSourceEndLine'] as
+          | number
+          | undefined;
+        if (endLine !== undefined) {
+          const numAfterLines = after.split('\n').length - 1;
+          this.builder(
+            computeCorrectedString(
+              after,
+              endLine - numAfterLines,
+              baseIndentations
+            )
+          );
+        } else {
+          this.builder(after);
+        }
+      } else {
+        this.builder(after);
+      }
     }
 
     this.builder(node.raws.codeAfter ?? '', node, 'end');
@@ -115,23 +140,80 @@ class LitStringifier extends Stringifier {
     own: string,
     detect: string | undefined
   ): string | boolean {
-    if (own === 'before' && node.raws['before'] && node.raws['litBefore']) {
-      return node.raws['litBefore'];
+    const root = node.root();
+    const baseIndentations = root.raws['litBaseIndentations'] as
+      | Map<number, number>
+      | undefined;
+    const startLine = node.raws['litSourceStartLine'] as number | undefined;
+
+    if (baseIndentations && startLine !== undefined) {
+      if (
+        own === 'before' &&
+        node.raws['before'] &&
+        (node.raws['before'].includes('\n') || node.parent?.type === 'root')
+      ) {
+        const before = node.raws['before'] as string;
+        const numBeforeLines = before.split('\n').length - 1;
+        return computeCorrectedString(
+          before,
+          startLine - numBeforeLines,
+          baseIndentations
+        );
+      }
+
+      if (
+        own === 'after' &&
+        node.raws['after']?.includes('\n') &&
+        node.type !== 'root'
+      ) {
+        const after = node.raws['after'] as string;
+        const numAfterLines = after.split('\n').length - 1;
+        const endLine = node.raws['litSourceEndLine'] as number | undefined;
+        if (endLine !== undefined) {
+          return computeCorrectedString(
+            after,
+            endLine - numAfterLines,
+            baseIndentations
+          );
+        }
+      }
+
+      if (own === 'between' && node.raws['between']?.includes('\n')) {
+        return computeCorrectedString(
+          node.raws['between'] as string,
+          startLine,
+          baseIndentations
+        );
+      }
     }
-    if (own === 'after' && node.raws['after'] && node.raws['litAfter']) {
-      return node.raws['litAfter'];
-    }
-    if (own === 'between' && node.raws['between'] && node.raws['litBetween']) {
-      return node.raws['litBetween'];
-    }
+
     return super.raw(node, own, detect);
   }
 
   /** @inheritdoc */
   public override rawValue(node: AnyNode, prop: string): string | number {
-    const litProp = `lit${prop[0]?.toUpperCase()}${prop.slice(1)}`;
-    if (Object.prototype.hasOwnProperty.call(node.raws, litProp)) {
-      return `${node.raws[litProp]}`;
+    const root = node.root();
+    const baseIndentations = root.raws['litBaseIndentations'] as
+      | Map<number, number>
+      | undefined;
+    const startLine = node.raws['litSourceStartLine'] as number | undefined;
+    const endLine = node.raws['litSourceEndLine'] as number | undefined;
+    const value = (node as unknown as Record<string, unknown>)[prop];
+
+    if (
+      baseIndentations &&
+      startLine !== undefined &&
+      typeof value === 'string' &&
+      value.includes('\n')
+    ) {
+      const originalLineCount =
+        endLine !== undefined ? endLine - startLine + 1 : undefined;
+      return computeCorrectedString(
+        value,
+        startLine,
+        baseIndentations,
+        originalLineCount
+      );
     }
 
     return super.rawValue(node, prop);

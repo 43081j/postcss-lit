@@ -185,3 +185,50 @@ function computePossiblePosition(prefix: string, suffix?: string): Position {
 
   return possiblePosition;
 }
+
+/**
+ * Computes the re-indented string of a given string on a given line
+ * @param {string} value Value to re-indent
+ * @param {number} lineNumber Current line number of the value
+ * @param {Map=} baseIndentations Indentation map
+ * @return {string}
+ */
+export function computeCorrectedString(
+  value: string,
+  lineNumber: number,
+  baseIndentations?: Map<number, number>,
+  originalLineCount?: number
+): string {
+  if (!value.includes('\n')) {
+    const baseIndentation = baseIndentations?.get(lineNumber);
+    if (baseIndentation !== undefined) {
+      return ' '.repeat(baseIndentation) + value;
+    }
+    return value;
+  }
+
+  const lines = value.split('\n');
+  const rawLines: string[] = [];
+
+  if (lines[0] !== undefined) {
+    rawLines.push(lines[0]);
+  }
+
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (line !== undefined) {
+      const isNewLine =
+        originalLineCount !== undefined && i >= originalLineCount;
+      const lookupLine = isNewLine ? lineNumber : lineNumber + i;
+      const baseIndentation = baseIndentations?.get(lookupLine);
+
+      if (baseIndentation !== undefined) {
+        rawLines.push(' '.repeat(baseIndentation) + line);
+      } else {
+        rawLines.push(line);
+      }
+    }
+  }
+
+  return rawLines.join('\n');
+}
