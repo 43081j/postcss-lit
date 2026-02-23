@@ -1,4 +1,4 @@
-import {Root, Rule, Declaration} from 'postcss';
+import {Root, Rule, Declaration, AtRule} from 'postcss';
 import {assert} from 'chai';
 import {createTestAst} from './util.js';
 import syntax = require('../main.js');
@@ -393,6 +393,120 @@ describe('stringify', () => {
       output,
       `
       css\`.foo { content: "\\\\eee"; }\`;
+    `
+    );
+  });
+
+  it('should handle transformed multi-line selectors', () => {
+    const {ast} = createTestAst(`
+      css\`
+        .foo,
+        .bar {
+          color: hotpink;
+        }
+      \`;
+    `);
+    const rule = (ast.nodes[0] as Root).nodes[0] as Rule;
+    rule.selectors = ['.parent .foo', '.parent .bar'];
+    const output = ast.toString(syntax);
+    assert.equal(
+      output,
+      `
+      css\`
+        .parent .foo,
+        .parent .bar {
+          color: hotpink;
+        }
+      \`;
+    `
+    );
+  });
+
+  it('should handle transformed multi-line values', () => {
+    const {ast} = createTestAst(`
+      css\`
+        .foo,
+        .bar {
+          border-radius:
+            4px
+            8px;
+        }
+      \`;
+    `);
+    const decl = ((ast.nodes[0] as Root).nodes[0] as Rule)
+      .nodes[0] as Declaration;
+    decl.value = `8px\n      12px`;
+    const output = ast.toString(syntax);
+    assert.equal(
+      output,
+      `
+      css\`
+        .foo,
+        .bar {
+          border-radius:
+            8px
+            12px;
+        }
+      \`;
+    `
+    );
+  });
+
+  it('should handle transformed multi-line at-rule params', () => {
+    const {ast} = createTestAst(`
+      css\`
+        @media screen and (
+          (min-width: 10rem) and (max-width: 20rem)
+        ) {
+          .foo {
+            border-radius:
+              4px
+              8px;
+          }
+        }
+      \`;
+    `);
+    const atRule = (ast.nodes[0] as Root).nodes[0] as AtRule;
+    atRule.params = `screen and (\n    (min-width: 160px) and (max-width: 320px)\n  )`;
+    const output = ast.toString(syntax);
+    assert.equal(
+      output,
+      `
+      css\`
+        @media screen and (
+          (min-width: 160px) and (max-width: 320px)
+        ) {
+          .foo {
+            border-radius:
+              4px
+              8px;
+          }
+        }
+      \`;
+    `
+    );
+  });
+
+  it('should handle mutations that add new lines to a node', () => {
+    const {ast} = createTestAst(`
+      css\`
+        .foo { color: hotpink; }
+      \`;
+    `);
+
+    const root = ast.nodes[0] as Root;
+    const rule = root.nodes[0] as Rule;
+    rule.selector = '.foo,\n  .bar,\n  .baz';
+
+    const output = ast.toString(syntax);
+    assert.equal(
+      output,
+      `
+      css\`
+        .foo,
+        .bar,
+        .baz { color: hotpink; }
+      \`;
     `
     );
   });
