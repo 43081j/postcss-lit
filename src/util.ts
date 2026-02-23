@@ -49,7 +49,7 @@ export const defaultPlaceholder: PlaceholderConfig = {
   create(key) {
     return `POSTCSS_LIT_${key}`;
   },
-  regex: /POSTCSS_LIT_(\d+)/
+  regex: /POSTCSS_LIT_(\d+)/g
 };
 
 export const placeholderMapping: Partial<Record<Position, PlaceholderConfig>> =
@@ -58,19 +58,19 @@ export const placeholderMapping: Partial<Record<Position, PlaceholderConfig>> =
       create(key) {
         return `/* POSTCSS_LIT_${key} */`;
       },
-      regex: /\/\* POSTCSS_LIT_(\d+)\*\//
+      regex: /\/\* POSTCSS_LIT_(\d+)\*\//g
     },
     statement: {
       create(key) {
         return `/* POSTCSS_LIT_${key} */`;
       },
-      regex: /\/\* POSTCSS_LIT_(\d+) \*\//
+      regex: /\/\* POSTCSS_LIT_(\d+) \*\//g
     },
     property: {
       create(key) {
         return `--POSTCSS_LIT_${key}`;
       },
-      regex: /--POSTCSS_LIT_(\d+)/
+      regex: /--POSTCSS_LIT_(\d+)/g
     }
   };
 
