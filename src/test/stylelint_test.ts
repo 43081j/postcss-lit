@@ -1,5 +1,6 @@
 import stylelint from 'stylelint';
 import {assert} from 'chai';
+import {describe, it} from 'mocha';
 import syntax from '../main.js';
 
 describe('stylelint', () => {

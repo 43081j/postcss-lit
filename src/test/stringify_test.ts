@@ -1,5 +1,6 @@
 import {Root, Rule, Declaration, AtRule} from 'postcss';
 import {assert} from 'chai';
+import {describe, it} from 'mocha';
 import {createTestAst} from './util.js';
 import syntax = require('../main.js');
 

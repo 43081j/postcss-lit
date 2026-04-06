@@ -7,6 +7,7 @@ import {
   TransformCallback
 } from 'postcss';
 import {assert} from 'chai';
+import {describe, it} from 'mocha';
 import syntax = require('../main.js');
 
 describe('postcss', () => {
