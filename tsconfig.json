@@ -4,6 +4,7 @@
     "module": "node20",
     "moduleResolution": "node16",
     "declaration": true,
+    "rootDir": "./src",
     "outDir": "./lib",
     "importHelpers": false,
     "forceConsistentCasingInFileNames": true,
