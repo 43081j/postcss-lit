@@ -32,7 +32,7 @@ describe('stylelint', () => {
         endColumn: 35,
         rule: 'unit-no-unknown',
         severity: 'error',
-        text: 'Unexpected unknown unit "nanoacres" (unit-no-unknown)',
+        text: 'Unknown unit "nanoacres" (unit-no-unknown)',
         // Since strict optional types won't allow this
         fix: undefined as never,
         url: undefined as never
