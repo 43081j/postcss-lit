@@ -33,16 +33,16 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.6.0",
     "chai": "^6.2.2",
-    "eslint": "^10.2.0",
+    "eslint": "^10.2.1",
     "mocha": "^11.7.5",
     "nyc": "^18.0.0",
-    "postcss": "^8.5.9",
+    "postcss": "^8.5.10",
     "premove": "^4.0.0",
-    "prettier": "^3.8.2",
-    "rollup": "^4.60.1",
-    "stylelint": "^17.7.0",
-    "typescript": "^6.0.2",
-    "typescript-eslint": "^8.58.1"
+    "prettier": "^3.8.3",
+    "rollup": "^4.60.2",
+    "stylelint": "^17.8.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.58.2"
   },
   "peerDependencies": {
     "postcss": "^8.3.11"
