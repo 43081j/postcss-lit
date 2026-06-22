@@ -10,7 +10,7 @@
     "docs"
   ],
   "scripts": {
-    "clean": "rimraf ./lib",
+    "clean": "node -e \"require('fs').rmSync('./lib', { recursive: true, force: true })\"",
     "lint": "eslint \"src/**/*.ts\"",
     "prebuild": "npm run clean",
     "build": "tsc",
