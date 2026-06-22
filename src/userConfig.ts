@@ -8,11 +8,7 @@ export interface UserConfig {
 const defaultConfig: UserConfig = {
   babelOptions: {
     sourceType: 'unambiguous',
-    plugins: [
-      'typescript',
-      ['decorators', {decoratorsBeforeExport: true}],
-      'jsx'
-    ],
+    plugins: ['typescript', 'decorators', 'jsx'],
     ranges: true
   }
 };
