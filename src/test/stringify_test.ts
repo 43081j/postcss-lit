@@ -511,4 +511,78 @@ describe('stringify', () => {
     `
     );
   });
+
+  it('should stringify multi-line comments', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        /* a comment that
+           spans lines */
+        .foo { color: hotpink; }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should stringify multi-line comments with delimiters on their own lines', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        /*
+          a comment
+        */
+        .foo { color: hotpink; }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should stringify multi-line comments with only whitespace', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        /*
+
+        */
+        .foo { color: hotpink; }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should stringify multi-line comments in rules', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        .foo {
+          /* a comment that
+             spans lines */
+          color: hotpink;
+        }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
+
+  it('should stringify multi-line comments with expressions', () => {
+    const {source, ast} = createTestAst(`
+      css\`
+        /* a comment with
+           $\{expr} */
+        .foo { color: hotpink; }
+      \`;
+    `);
+
+    const output = ast.toString(syntax);
+
+    assert.equal(output, source);
+  });
 });
