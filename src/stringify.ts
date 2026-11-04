@@ -3,7 +3,8 @@ import {
   Root,
   Document,
   AnyNode,
-  Builder
+  Builder,
+  Comment
 } from 'postcss';
 import Stringifier from 'postcss/lib/stringifier';
 import {
@@ -135,6 +136,16 @@ class LitStringifier extends Stringifier {
   }
 
   /** @inheritdoc */
+  public override comment(node: Comment): void {
+    const left = this.raw(node, 'left', 'commentLeft');
+    const right = this.raw(node, 'right', 'commentRight');
+    // The body's lines can be in `left` and `right` as well as `text`, such
+    // as when the delimiters are on their own lines, so it's corrected whole.
+    const body = `${left}${node.text}${right}`;
+    this.builder(`/*${this._correctIndentation(node, body) ?? body}*/`, node);
+  }
+
+  /** @inheritdoc */
   public override raw(
     node: AnyNode,
     own: string,
@@ -192,31 +203,46 @@ class LitStringifier extends Stringifier {
 
   /** @inheritdoc */
   public override rawValue(node: AnyNode, prop: string): string | number {
+    const value = (node as unknown as Record<string, unknown>)[prop];
+
+    if (typeof value === 'string') {
+      const correctedValue = this._correctIndentation(node, value);
+      if (correctedValue !== undefined) {
+        return correctedValue;
+      }
+    }
+
+    return super.rawValue(node, prop);
+  }
+
+  /**
+   * Restores the template's base indentation to the lines of a multi-line
+   * value from the given node, or returns `undefined` if there's none to
+   * restore.
+   */
+  protected _correctIndentation(
+    node: AnyNode,
+    value: string
+  ): string | undefined {
     const root = node.root();
     const baseIndentations = root.raws['litBaseIndentations'] as
       | Map<number, number>
       | undefined;
     const startLine = node.raws['litSourceStartLine'] as number | undefined;
     const endLine = node.raws['litSourceEndLine'] as number | undefined;
-    const value = (node as unknown as Record<string, unknown>)[prop];
 
-    if (
-      baseIndentations &&
-      startLine !== undefined &&
-      typeof value === 'string' &&
-      value.includes('\n')
-    ) {
-      const originalLineCount =
-        endLine !== undefined ? endLine - startLine + 1 : undefined;
-      return computeCorrectedString(
-        value,
-        startLine,
-        baseIndentations,
-        originalLineCount
-      );
+    if (!baseIndentations || startLine === undefined || !value.includes('\n')) {
+      return undefined;
     }
 
-    return super.rawValue(node, prop);
+    const originalLineCount =
+      endLine !== undefined ? endLine - startLine + 1 : undefined;
+    return computeCorrectedString(
+      value,
+      startLine,
+      baseIndentations,
+      originalLineCount
+    );
   }
 }
 
