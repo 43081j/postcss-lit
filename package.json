@@ -38,11 +38,11 @@
     "mocha": "^12.0.3",
     "postcss": "^8.5.32",
     "premove": "^4.0.0",
-    "prettier": "^3.9.10",
-    "rollup": "^4.67.5",
+    "prettier": "^3.10.1",
+    "rollup": "^4.68.2",
     "stylelint": "^18.0.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "typescript-eslint": "^8.72.1"
+    "typescript-eslint": "^8.72.2"
   },
   "peerDependencies": {
     "postcss": "^8.3.11"
