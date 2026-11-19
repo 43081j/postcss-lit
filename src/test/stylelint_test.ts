@@ -129,4 +129,36 @@ describe('stylelint', () => {
     `
     );
   });
+
+  it('should be fixable by stylelint with multi-line comments', async () => {
+    const source = `
+      css\`
+        /* a comment that
+           spans lines */
+        .foo { color: red; color: hotpink; }
+      \`;
+    `;
+    const result = await stylelint.lint({
+      customSyntax: syntax,
+      code: source,
+      codeFilename: 'foo.js',
+      fix: true,
+      config: {
+        rules: {
+          'declaration-block-no-duplicate-properties': true
+        }
+      }
+    });
+
+    assert.equal(
+      result.code,
+      `
+      css\`
+        /* a comment that
+           spans lines */
+        .foo { color: hotpink; }
+      \`;
+    `
+    );
+  });
 });
