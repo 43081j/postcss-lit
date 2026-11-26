@@ -1,5 +1,6 @@
 import {NodePath} from '@babel/traverse';
 import {TaggedTemplateExpression, Comment} from '@babel/types';
+import type {AnyNode} from 'postcss';
 
 /**
  * Determines if a given comment is a postcss-lit-disable comment
@@ -31,12 +32,7 @@ export function hasDisableComment(
 }
 
 export type Position =
-  | 'block'
-  | 'statement'
-  | 'default'
-  | 'selector'
-  | 'property'
-  | 'comment';
+  'block' | 'statement' | 'default' | 'selector' | 'property' | 'comment';
 
 const whitespacePattern = /\s/;
 
@@ -231,4 +227,28 @@ export function computeCorrectedString(
   }
 
   return rawLines.join('\n');
+}
+
+export function correctIndentation(
+  node: AnyNode,
+  value: string
+): string | undefined {
+  const root = node.root();
+  const baseIndentations = root.raws['litBaseIndentations'] as
+    Map<number, number> | undefined;
+  const startLine = node.raws['litSourceStartLine'] as number | undefined;
+  const endLine = node.raws['litSourceEndLine'] as number | undefined;
+
+  if (!baseIndentations || startLine === undefined || !value.includes('\n')) {
+    return undefined;
+  }
+
+  const originalLineCount =
+    endLine !== undefined ? endLine - startLine + 1 : undefined;
+  return computeCorrectedString(
+    value,
+    startLine,
+    baseIndentations,
+    originalLineCount
+  );
 }

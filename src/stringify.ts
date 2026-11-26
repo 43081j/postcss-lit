@@ -3,14 +3,16 @@ import {
   Root,
   Document,
   AnyNode,
-  Builder
+  Builder,
+  Comment
 } from 'postcss';
 import Stringifier from 'postcss/lib/stringifier';
 import {
   defaultPlaceholder,
   placeholderMapping,
   Position,
-  computeCorrectedString
+  computeCorrectedString,
+  correctIndentation
 } from './util.js';
 
 /**
@@ -107,13 +109,11 @@ class LitStringifier extends Stringifier {
     const after = node.raws.after;
     if (after) {
       const baseIndentations = node.raws['litBaseIndentations'] as
-        | Map<number, number>
-        | undefined;
+        Map<number, number> | undefined;
       if (baseIndentations && after.includes('\n')) {
         const lastChild = node.nodes[node.nodes.length - 1];
         const endLine = lastChild?.raws['litSourceEndLine'] as
-          | number
-          | undefined;
+          number | undefined;
         if (endLine !== undefined) {
           const numAfterLines = after.split('\n').length - 1;
           this.builder(
@@ -135,6 +135,14 @@ class LitStringifier extends Stringifier {
   }
 
   /** @inheritdoc */
+  public override comment(node: Comment): void {
+    const left = this.raw(node, 'left', 'commentLeft');
+    const right = this.raw(node, 'right', 'commentRight');
+    const body = `${left}${node.text}${right}`;
+    this.builder(`/*${correctIndentation(node, body) ?? body}*/`, node);
+  }
+
+  /** @inheritdoc */
   public override raw(
     node: AnyNode,
     own: string,
@@ -142,8 +150,7 @@ class LitStringifier extends Stringifier {
   ): string | boolean {
     const root = node.root();
     const baseIndentations = root.raws['litBaseIndentations'] as
-      | Map<number, number>
-      | undefined;
+      Map<number, number> | undefined;
     const startLine = node.raws['litSourceStartLine'] as number | undefined;
 
     if (baseIndentations && startLine !== undefined) {
@@ -192,28 +199,13 @@ class LitStringifier extends Stringifier {
 
   /** @inheritdoc */
   public override rawValue(node: AnyNode, prop: string): string | number {
-    const root = node.root();
-    const baseIndentations = root.raws['litBaseIndentations'] as
-      | Map<number, number>
-      | undefined;
-    const startLine = node.raws['litSourceStartLine'] as number | undefined;
-    const endLine = node.raws['litSourceEndLine'] as number | undefined;
     const value = (node as unknown as Record<string, unknown>)[prop];
 
-    if (
-      baseIndentations &&
-      startLine !== undefined &&
-      typeof value === 'string' &&
-      value.includes('\n')
-    ) {
-      const originalLineCount =
-        endLine !== undefined ? endLine - startLine + 1 : undefined;
-      return computeCorrectedString(
-        value,
-        startLine,
-        baseIndentations,
-        originalLineCount
-      );
+    if (typeof value === 'string') {
+      const correctedValue = correctIndentation(node, value);
+      if (correctedValue !== undefined) {
+        return correctedValue;
+      }
     }
 
     return super.rawValue(node, prop);
