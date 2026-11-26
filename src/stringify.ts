@@ -11,7 +11,8 @@ import {
   defaultPlaceholder,
   placeholderMapping,
   Position,
-  computeCorrectedString
+  computeCorrectedString,
+  correctIndentation
 } from './util.js';
 
 /**
@@ -108,13 +109,11 @@ class LitStringifier extends Stringifier {
     const after = node.raws.after;
     if (after) {
       const baseIndentations = node.raws['litBaseIndentations'] as
-        | Map<number, number>
-        | undefined;
+        Map<number, number> | undefined;
       if (baseIndentations && after.includes('\n')) {
         const lastChild = node.nodes[node.nodes.length - 1];
         const endLine = lastChild?.raws['litSourceEndLine'] as
-          | number
-          | undefined;
+          number | undefined;
         if (endLine !== undefined) {
           const numAfterLines = after.split('\n').length - 1;
           this.builder(
@@ -139,10 +138,8 @@ class LitStringifier extends Stringifier {
   public override comment(node: Comment): void {
     const left = this.raw(node, 'left', 'commentLeft');
     const right = this.raw(node, 'right', 'commentRight');
-    // The body's lines can be in `left` and `right` as well as `text`, such
-    // as when the delimiters are on their own lines, so it's corrected whole.
     const body = `${left}${node.text}${right}`;
-    this.builder(`/*${this._correctIndentation(node, body) ?? body}*/`, node);
+    this.builder(`/*${correctIndentation(node, body) ?? body}*/`, node);
   }
 
   /** @inheritdoc */
@@ -153,8 +150,7 @@ class LitStringifier extends Stringifier {
   ): string | boolean {
     const root = node.root();
     const baseIndentations = root.raws['litBaseIndentations'] as
-      | Map<number, number>
-      | undefined;
+      Map<number, number> | undefined;
     const startLine = node.raws['litSourceStartLine'] as number | undefined;
 
     if (baseIndentations && startLine !== undefined) {
@@ -206,43 +202,13 @@ class LitStringifier extends Stringifier {
     const value = (node as unknown as Record<string, unknown>)[prop];
 
     if (typeof value === 'string') {
-      const correctedValue = this._correctIndentation(node, value);
+      const correctedValue = correctIndentation(node, value);
       if (correctedValue !== undefined) {
         return correctedValue;
       }
     }
 
     return super.rawValue(node, prop);
-  }
-
-  /**
-   * Restores the template's base indentation to the lines of a multi-line
-   * value from the given node, or returns `undefined` if there's none to
-   * restore.
-   */
-  protected _correctIndentation(
-    node: AnyNode,
-    value: string
-  ): string | undefined {
-    const root = node.root();
-    const baseIndentations = root.raws['litBaseIndentations'] as
-      | Map<number, number>
-      | undefined;
-    const startLine = node.raws['litSourceStartLine'] as number | undefined;
-    const endLine = node.raws['litSourceEndLine'] as number | undefined;
-
-    if (!baseIndentations || startLine === undefined || !value.includes('\n')) {
-      return undefined;
-    }
-
-    const originalLineCount =
-      endLine !== undefined ? endLine - startLine + 1 : undefined;
-    return computeCorrectedString(
-      value,
-      startLine,
-      baseIndentations,
-      originalLineCount
-    );
   }
 }
 
